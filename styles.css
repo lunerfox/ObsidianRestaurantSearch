@@ -1,0 +1,47 @@
+/* Styles for Google Places Search Plugin */
+
+.google-places-modal {
+    padding: 20px;
+}
+
+.google-places-search-input {
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.google-places-results {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.google-places-result-item {
+    padding: 10px;
+    border-bottom: 1px solid var(--background-modifier-border);
+    cursor: pointer;
+}
+
+.google-places-result-item:hover {
+    background-color: var(--background-modifier-hover);
+}
+
+.google-places-result-name {
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.google-places-result-address {
+    font-size: 0.9em;
+    color: var(--text-muted);
+}
+
+.google-places-error {
+    color: var(--text-error);
+    padding: 10px;
+    margin-top: 10px;
+}
+
+.google-places-loading {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-muted);
+}

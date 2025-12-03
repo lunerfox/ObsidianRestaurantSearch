@@ -7,13 +7,13 @@ npm-debug.log*
 node_modules/
 
 # Build
-main.js
-main.js.map
+dist/
 *.js.map
 
 # IDE
 .vscode/
 .idea/
+.claude/
 
 # OS
 .DS_Store

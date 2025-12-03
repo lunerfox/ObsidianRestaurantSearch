@@ -121,8 +121,9 @@ export class NoteCreator {
 			lines.push(`isClosed: ${frontmatter.isClosed}`);
 		}
 
-		if (frontmatter.location) {
-			lines.push(`location: [${frontmatter.location[0]}, ${frontmatter.location[1]}]`);
+		if (frontmatter.location && frontmatter.location.length > 0) {
+			lines.push(`location:`);
+			lines.push(`  - ${frontmatter.location[0]}`);
 		}
 
 		lines.push('---');

@@ -46,7 +46,7 @@
 - **image:** First photo URL from Google Places photos array (or template placeholder if none)
 - **address:** formatted_address from API
 - **isClosed:** Set to `true` only if `business_status === "CLOSED_PERMANENTLY"`, otherwise `false`
-- **location:** Array format `[latitude, longitude]` for map plugins
+- **location:** Array with single string `["latitude,longitude"]` for map plugins
 
 **Fields Left Blank (User Fills Later or Comes from Template):**
 - Type (comes from template)

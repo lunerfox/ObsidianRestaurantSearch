@@ -98,7 +98,7 @@ google-places-plugin/
 - Transform Google Places API response to frontmatter format
 - Map cuisine types to readable names
 - Extract city from address components
-- Format location as [lat, lng] array
+- Format location as single string "lat,lng" in an array
 - Determine isClosed status
 - Construct image and Google Maps URLs
 - Return `PlaceFrontmatter` object
@@ -194,7 +194,7 @@ interface PlaceFrontmatter {
     image: string;
     address: string;
     isClosed: boolean;
-    location: [number, number];
+    location: string[];
 }
 
 // Custom Error Types
@@ -335,8 +335,8 @@ async getPlaceDetails(placeId: string): Promise<PlaceDetails> {
 
 **Location Array:**
 - Extract `location.latitude` and `location.longitude`
-- Format as `[latitude, longitude]`
-- Return as tuple
+- Format as single string: `"latitude,longitude"`
+- Return as string array with single element: `["lat,lng"]`
 
 **isClosed Determination:**
 - Check if `businessStatus === "CLOSED_PERMANENTLY"`
@@ -626,10 +626,10 @@ describe('dataMapper', () => {
         expect(result).toBe('Los Angeles');
     });
     
-    test('formats location as array', () => {
+    test('formats location as string in array', () => {
         const location = { latitude: 34.0522, longitude: -118.2437 };
         const result = formatLocation(location);
-        expect(result).toEqual([34.0522, -118.2437]);
+        expect(result).toEqual(['34.0522,-118.2437']);
     });
     
     test('determines isClosed correctly', () => {

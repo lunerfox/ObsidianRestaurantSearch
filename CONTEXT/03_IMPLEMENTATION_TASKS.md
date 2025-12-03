@@ -185,7 +185,7 @@ npm run build
 **Success Criteria:**
 - ✅ Correctly extracts and transforms cuisine types
 - ✅ Extracts city from address components
-- ✅ Formats location as [lat, lng] array
+- ✅ Formats location as single string in array ["lat,lng"]
 - ✅ Constructs valid image URLs
 - ✅ Determines isClosed correctly
 - ✅ Returns proper PlaceFrontmatter object

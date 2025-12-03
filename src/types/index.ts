@@ -40,7 +40,7 @@ export interface NoteFrontmatter {
 	image?: string;
 	address?: string;
 	isClosed?: boolean;
-	location?: [number, number];
+	location?: string[];
 }
 
 export interface GooglePlacesSearchResponse {
