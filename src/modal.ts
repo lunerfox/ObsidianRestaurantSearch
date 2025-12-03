@@ -132,6 +132,25 @@ export class PlaceSearchModal extends Modal {
 
 			const frontmatter = this.dataMapper.mapPlaceDetailsToFrontmatter(placeDetails);
 
+			// Handle image based on settings
+			if (placeDetails.photos && placeDetails.photos.length > 0) {
+				const photoName = placeDetails.photos[0].name;
+				const imageUrl = `https://places.googleapis.com/v1/${photoName}/media?key=${this.settings.apiKey}&maxHeightPx=400&maxWidthPx=400`;
+
+				if (this.settings.downloadImages) {
+					new Notice('Downloading image...');
+					const localImagePath = await this.noteCreator.downloadAndSaveImage(
+						imageUrl,
+						placeDetails.displayName.text
+					);
+					if (localImagePath) {
+						frontmatter.image = localImagePath;
+					}
+				} else {
+					frontmatter.image = imageUrl;
+				}
+			}
+
 			const city = frontmatter.city;
 			const filename = this.dataMapper.formatFilename(
 				this.settings.filenameFormat,

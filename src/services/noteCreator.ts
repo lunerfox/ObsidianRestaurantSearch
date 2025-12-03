@@ -135,4 +135,71 @@ export class NoteCreator {
 		const frontmatterRegex = /^---\n[\s\S]*?\n---\n/;
 		return content.replace(frontmatterRegex, '').trim();
 	}
+
+	async downloadAndSaveImage(photoUrl: string, placeName: string): Promise<string | null> {
+		try {
+			// Ensure image folder exists
+			await this.ensureFolderExists(this.settings.imageFolder);
+
+			// Fetch the image
+			const response = await fetch(photoUrl);
+			if (!response.ok) {
+				throw new Error(`Failed to fetch image: ${response.statusText}`);
+			}
+
+			// Get image data as array buffer
+			const imageData = await response.arrayBuffer();
+
+			// Generate unique filename
+			const sanitizedName = this.sanitizeImageFilename(placeName);
+			const extension = this.getImageExtension(response.headers.get('content-type') || 'image/jpeg');
+			const baseFilename = `${sanitizedName}.${extension}`;
+			const imagePath = normalizePath(`${this.settings.imageFolder}/${baseFilename}`);
+			const uniqueImagePath = await this.getUniqueImagePath(imagePath);
+
+			// Save image to vault
+			await this.app.vault.createBinary(uniqueImagePath, imageData);
+
+			// Return the wiki-link format for Obsidian
+			return uniqueImagePath;
+		} catch (error) {
+			new Notice(`Failed to download image: ${error.message}`);
+			return null;
+		}
+	}
+
+	private sanitizeImageFilename(name: string): string {
+		// Remove invalid characters and convert to lowercase
+		return name
+			.toLowerCase()
+			.replace(/[\\/:*?"<>|]/g, '-')
+			.replace(/\s+/g, '-')
+			.replace(/-+/g, '-')
+			.substring(0, 50); // Limit length
+	}
+
+	private getImageExtension(contentType: string): string {
+		const typeMap: { [key: string]: string } = {
+			'image/jpeg': 'jpg',
+			'image/jpg': 'jpg',
+			'image/png': 'png',
+			'image/gif': 'gif',
+			'image/webp': 'webp'
+		};
+		return typeMap[contentType.toLowerCase()] || 'jpg';
+	}
+
+	private async getUniqueImagePath(imagePath: string): Promise<string> {
+		let uniquePath = imagePath;
+		let counter = 1;
+
+		while (await this.app.vault.adapter.exists(uniquePath)) {
+			const pathWithoutExt = imagePath.replace(/\.[^.]+$/, '');
+			const extension = imagePath.split('.').pop();
+			uniquePath = `${pathWithoutExt}-${counter}.${extension}`;
+			counter++;
+		}
+
+		return uniquePath;
+	}
 }

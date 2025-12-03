@@ -23,10 +23,8 @@ export class DataMapper {
 			frontmatter.link = `https://www.google.com/maps/place/?q=place_id:${placeDetails.id}`;
 		}
 
-		if (placeDetails.photos && placeDetails.photos.length > 0) {
-			const photoName = placeDetails.photos[0].name;
-			frontmatter.image = `https://places.googleapis.com/v1/${photoName}/media?key=YOUR_API_KEY&maxHeightPx=400&maxWidthPx=400`;
-		}
+		// Image will be handled by the modal based on downloadImages setting
+		// Don't set image URL here - let the modal handle it
 
 		if (placeDetails.formattedAddress) {
 			frontmatter.address = placeDetails.formattedAddress;

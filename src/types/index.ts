@@ -3,13 +3,17 @@ export interface GooglePlacesPluginSettings {
 	templateFilePath: string;
 	targetFolder: string;
 	filenameFormat: string;
+	downloadImages: boolean;
+	imageFolder: string;
 }
 
 export const DEFAULT_SETTINGS: GooglePlacesPluginSettings = {
 	apiKey: '',
 	templateFilePath: '',
 	targetFolder: '',
-	filenameFormat: '{name}'
+	filenameFormat: '{name}',
+	downloadImages: true,
+	imageFolder: 'attachments/places'
 };
 
 export interface PlaceSearchResult {

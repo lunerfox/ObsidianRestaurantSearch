@@ -59,5 +59,26 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 					this.plugin.settings.filenameFormat = value;
 					await this.plugin.saveSettings();
 				}));
+
+		new Setting(containerEl)
+			.setName('Download Images Locally')
+			.setDesc('Download place photos to your vault instead of linking to Google servers')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.downloadImages)
+				.onChange(async (value) => {
+					this.plugin.settings.downloadImages = value;
+					await this.plugin.saveSettings();
+				}));
+
+		new Setting(containerEl)
+			.setName('Image Folder')
+			.setDesc('Folder where downloaded images will be stored (e.g., attachments/places)')
+			.addText(text => text
+				.setPlaceholder('attachments/places')
+				.setValue(this.plugin.settings.imageFolder)
+				.onChange(async (value) => {
+					this.plugin.settings.imageFolder = value;
+					await this.plugin.saveSettings();
+				}));
 	}
 }
