@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "minAppVersion": "1.0.0",
   "description": "Search for places using Google Places API and create structured notes with rich metadata",
-  "author": "CousCous",
+  "author": "Leo Szeto",
   "authorUrl": "",
   "isDesktopOnly": false
 }
