@@ -104,19 +104,24 @@ export class NoteCreator {
 				lines.push(`  - ${value[0]}`);
 			}
 			// Handle arrays (except location which is handled above)
-			else if (Array.isArray(value) && value.length > 0) {
-				if (key === 'cuisine') {
-					// Cuisine should be inline array format
-					lines.push(`cuisine: [${value.join(', ')}]`);
-				} else {
-					// Other arrays use list format
-					lines.push(`${key}:`);
-					for (const item of value) {
-						lines.push(`  - ${item}`);
+			else if (Array.isArray(value)) {
+				if (value.length > 0) {
+					if (key === 'cuisine') {
+						// Cuisine should be inline array format
+						lines.push(`cuisine: [${value.join(', ')}]`);
+					} else {
+						// Other arrays use list format
+						lines.push(`${key}:`);
+						for (const item of value) {
+							lines.push(`  - ${item}`);
+						}
 					}
+				} else {
+					// Empty array
+					lines.push(`${key}:`);
 				}
 			}
-			// Handle regular values
+			// Handle regular values (including empty strings)
 			else if (!Array.isArray(value)) {
 				lines.push(`${key}: ${value}`);
 			}
@@ -167,13 +172,20 @@ export class NoteCreator {
 				const value = trimmedLine.substring(colonIndex + 1).trim();
 
 				if (value === '') {
-					// Empty value, might be followed by array
+					// Empty value - preserve it as empty string (might be followed by array)
 					inArray = true;
-					frontmatter[currentKey] = [];
+					frontmatter[currentKey] = '';
 				} else {
 					inArray = false;
 					frontmatter[currentKey] = value;
 				}
+			}
+		}
+
+		// Convert empty strings that were followed by array items back to arrays
+		for (const key in frontmatter) {
+			if (frontmatter[key] === '' && lines.some(line => line.trim().startsWith('- ') && lines.indexOf(line) > lines.findIndex(l => l.includes(`${key}:`)))) {
+				frontmatter[key] = [];
 			}
 		}
 
