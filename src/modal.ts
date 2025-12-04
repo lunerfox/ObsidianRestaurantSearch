@@ -1,4 +1,4 @@
-import { App, Modal, Notice, Setting } from 'obsidian';
+import { App, Modal, Notice, Setting, Editor } from 'obsidian';
 import { GooglePlacesService } from './services/googlePlaces';
 import { DataMapper } from './services/dataMapper';
 import { NoteCreator } from './services/noteCreator';
@@ -10,19 +10,25 @@ export class PlaceSearchModal extends Modal {
 	private noteCreator: NoteCreator;
 	private settings: GooglePlacesPluginSettings;
 	private searchResults: PlaceSearchResult[] = [];
+	private insertLink: boolean;
+	private editor?: Editor;
 
 	constructor(
 		app: App,
 		googlePlacesService: GooglePlacesService,
 		dataMapper: DataMapper,
 		noteCreator: NoteCreator,
-		settings: GooglePlacesPluginSettings
+		settings: GooglePlacesPluginSettings,
+		insertLink: boolean = false,
+		editor?: Editor
 	) {
 		super(app);
 		this.googlePlacesService = googlePlacesService;
 		this.dataMapper = dataMapper;
 		this.noteCreator = noteCreator;
 		this.settings = settings;
+		this.insertLink = insertLink;
+		this.editor = editor;
 	}
 
 	onOpen() {
@@ -160,8 +166,16 @@ export class PlaceSearchModal extends Modal {
 				placeDetails.displayName.text
 			);
 
-			const leaf = this.app.workspace.getLeaf(false);
-			await leaf.openFile(file);
+			if (this.insertLink && this.editor) {
+				// Insert link at cursor position
+				const link = `[[${file.basename}]]`;
+				this.editor.replaceSelection(link);
+				new Notice(`Created note and inserted link: ${file.basename}`);
+			} else {
+				// Open the file in a new leaf
+				const leaf = this.app.workspace.getLeaf(false);
+				await leaf.openFile(file);
+			}
 
 			this.close();
 

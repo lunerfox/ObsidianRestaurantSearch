@@ -1,4 +1,4 @@
-import { Plugin } from 'obsidian';
+import { Plugin, Editor } from 'obsidian';
 import { GooglePlacesPluginSettings, DEFAULT_SETTINGS } from './types';
 import { GooglePlacesSettingTab } from './settings';
 import { PlaceSearchModal } from './modal';
@@ -35,7 +35,15 @@ export default class GooglePlacesPlugin extends Plugin {
 			id: 'search-google-places',
 			name: 'Search and add place from Google Places',
 			callback: () => {
-				this.openSearchModal();
+				this.openSearchModal(false);
+			}
+		});
+
+		this.addCommand({
+			id: 'search-google-places-insert-link',
+			name: 'Search and add place, then insert link at cursor',
+			editorCallback: (editor) => {
+				this.openSearchModal(true, editor);
 			}
 		});
 	}
@@ -44,7 +52,7 @@ export default class GooglePlacesPlugin extends Plugin {
 		this.addSettingTab(new GooglePlacesSettingTab(this.app, this));
 	}
 
-	private openSearchModal() {
+	private openSearchModal(insertLink: boolean = false, editor?: Editor) {
 		this.initializeServices();
 
 		new PlaceSearchModal(
@@ -52,7 +60,9 @@ export default class GooglePlacesPlugin extends Plugin {
 			this.googlePlacesService,
 			this.dataMapper,
 			this.noteCreator,
-			this.settings
+			this.settings,
+			insertLink,
+			editor
 		).open();
 	}
 
