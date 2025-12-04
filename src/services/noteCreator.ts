@@ -80,50 +80,46 @@ export class NoteCreator {
 	}
 
 	private buildNoteContent(frontmatter: NoteFrontmatter, templateContent: string, placeName: string): string {
-		const frontmatterStr = this.formatFrontmatter(frontmatter);
-
 		if (templateContent) {
-			const templateWithoutFrontmatter = this.stripExistingFrontmatter(templateContent);
-			return `${frontmatterStr}\n${templateWithoutFrontmatter}`;
+			const { frontmatter: templateFrontmatter, body: templateBody } = this.parseTemplate(templateContent);
+			const mergedFrontmatter = { ...templateFrontmatter, ...frontmatter };
+			const frontmatterStr = this.formatFrontmatter(mergedFrontmatter);
+			return `${frontmatterStr}\n${templateBody}`;
 		}
 
+		const frontmatterStr = this.formatFrontmatter(frontmatter);
 		return `${frontmatterStr}\n# ${placeName}\n\n`;
 	}
 
-	private formatFrontmatter(frontmatter: NoteFrontmatter): string {
+	private formatFrontmatter(frontmatter: any): string {
 		const lines = ['---'];
 
-		if (frontmatter.cuisine && frontmatter.cuisine.length > 0) {
-			lines.push(`cuisine: [${frontmatter.cuisine.join(', ')}]`);
-		}
+		// Iterate through all frontmatter fields
+		for (const [key, value] of Object.entries(frontmatter)) {
+			if (value === undefined || value === null) continue;
 
-		if (frontmatter.city) {
-			lines.push(`city: ${frontmatter.city}`);
-		}
-
-		if (frontmatter['rating-google'] !== undefined) {
-			lines.push(`rating-google: ${frontmatter['rating-google']}`);
-		}
-
-		if (frontmatter.link) {
-			lines.push(`link: ${frontmatter.link}`);
-		}
-
-		if (frontmatter.image) {
-			lines.push(`image: ${frontmatter.image}`);
-		}
-
-		if (frontmatter.address) {
-			lines.push(`address: ${frontmatter.address}`);
-		}
-
-		if (frontmatter.isClosed !== undefined) {
-			lines.push(`isClosed: ${frontmatter.isClosed}`);
-		}
-
-		if (frontmatter.location && frontmatter.location.length > 0) {
-			lines.push(`location:`);
-			lines.push(`  - ${frontmatter.location[0]}`);
+			// Special handling for location (array with single string)
+			if (key === 'location' && Array.isArray(value) && value.length > 0) {
+				lines.push(`location:`);
+				lines.push(`  - ${value[0]}`);
+			}
+			// Handle arrays (except location which is handled above)
+			else if (Array.isArray(value) && value.length > 0) {
+				if (key === 'cuisine') {
+					// Cuisine should be inline array format
+					lines.push(`cuisine: [${value.join(', ')}]`);
+				} else {
+					// Other arrays use list format
+					lines.push(`${key}:`);
+					for (const item of value) {
+						lines.push(`  - ${item}`);
+					}
+				}
+			}
+			// Handle regular values
+			else if (!Array.isArray(value)) {
+				lines.push(`${key}: ${value}`);
+			}
 		}
 
 		lines.push('---');
@@ -131,9 +127,57 @@ export class NoteCreator {
 		return lines.join('\n');
 	}
 
-	private stripExistingFrontmatter(content: string): string {
-		const frontmatterRegex = /^---\n[\s\S]*?\n---\n/;
-		return content.replace(frontmatterRegex, '').trim();
+	private parseTemplate(content: string): { frontmatter: any; body: string } {
+		const frontmatterRegex = /^---\n([\s\S]*?)\n---\n([\s\S]*)$/;
+		const match = content.match(frontmatterRegex);
+
+		if (!match) {
+			return { frontmatter: {}, body: content.trim() };
+		}
+
+		const frontmatterText = match[1];
+		const body = match[2].trim();
+
+		// Parse YAML frontmatter (simple key-value parser)
+		const frontmatter: any = {};
+		const lines = frontmatterText.split('\n');
+		let currentKey = '';
+		let inArray = false;
+
+		for (const line of lines) {
+			const trimmedLine = line.trim();
+
+			if (!trimmedLine) continue;
+
+			// Handle array items
+			if (trimmedLine.startsWith('- ')) {
+				if (inArray && currentKey) {
+					if (!Array.isArray(frontmatter[currentKey])) {
+						frontmatter[currentKey] = [];
+					}
+					frontmatter[currentKey].push(trimmedLine.substring(2));
+				}
+				continue;
+			}
+
+			// Handle key-value pairs
+			const colonIndex = trimmedLine.indexOf(':');
+			if (colonIndex > 0) {
+				currentKey = trimmedLine.substring(0, colonIndex).trim();
+				const value = trimmedLine.substring(colonIndex + 1).trim();
+
+				if (value === '') {
+					// Empty value, might be followed by array
+					inArray = true;
+					frontmatter[currentKey] = [];
+				} else {
+					inArray = false;
+					frontmatter[currentKey] = value;
+				}
+			}
+		}
+
+		return { frontmatter, body };
 	}
 
 	async downloadAndSaveImage(photoUrl: string, placeName: string): Promise<string | null> {

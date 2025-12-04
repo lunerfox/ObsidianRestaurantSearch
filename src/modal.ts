@@ -57,10 +57,6 @@ export class PlaceSearchModal extends Modal {
 			});
 
 		const resultsContainer = contentEl.createDiv({ cls: 'results-container' });
-		resultsContainer.createEl('p', {
-			text: 'Enter a search query and press Enter or click Search',
-			cls: 'empty-state'
-		});
 	}
 
 	async performSearch(query: string) {
