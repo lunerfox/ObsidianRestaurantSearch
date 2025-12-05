@@ -28,13 +28,63 @@ This plugin helps Obsidian users who track restaurants, places of interest, or m
 ### Prerequisites
 
 - Obsidian v1.8.0 or higher
-- Google Places API key ([Get one here](https://console.cloud.google.com))
+- Google Places API key with required permissions (see setup below)
 
-### Setup
+### Google API Setup
+
+To use this plugin, you need to set up a Google Cloud project and enable the Places API (New):
+
+1. **Create a Google Cloud Project**
+   - Go to [Google Cloud Console](https://console.cloud.google.com)
+   - Create a new project or select an existing one
+
+2. **Enable Required APIs**
+   - Navigate to "APIs & Services" > "Library"
+   - Search for and enable: **Places API (New)**
+   - Note: This is different from the legacy "Places API"
+
+3. **Create API Key**
+   - Go to "APIs & Services" > "Credentials"
+   - Click "Create Credentials" > "API Key"
+   - Copy your new API key
+
+4. **Secure Your API Key (Recommended)**
+   - Click on your API key to edit restrictions
+   - Under "API restrictions", select "Restrict key"
+   - Choose only: **Places API (New)**
+   - Under "Application restrictions" (optional):
+     - Consider adding HTTP referrer restrictions if using on specific devices
+     - Or use IP restrictions for additional security
+
+5. **Verify Billing is Enabled**
+   - Google Places API (New) requires a billing account
+   - Go to "Billing" in Google Cloud Console
+   - Set up billing if not already configured
+   - Note: Google provides $200 monthly credit which typically covers personal use
+
+### Required API Permissions
+
+This plugin requires the following Google Places API (New) permissions:
+
+- **places.searchText** - For searching places by text query
+- **places.get** - For retrieving detailed place information
+- **Place Data Fields Used**:
+  - `places.id` - Place identifier
+  - `places.displayName` - Place name
+  - `places.formattedAddress` - Full address
+  - `places.types` - Place categories (for cuisine types)
+  - `places.rating` - Google user rating
+  - `places.photos` - Place photos
+  - `places.location` - Geographic coordinates
+  - `places.businessStatus` - Open/closed status
+  - `places.addressComponents` - Structured address (for city extraction)
+
+### Plugin Installation
 
 1. Download the plugin files to your vault's `.obsidian/plugins/google-places-obsidian/` directory
 2. Enable the plugin in Obsidian Settings > Community Plugins
 3. Configure your Google Places API key in plugin settings
+4. Click "Validate" to test your API key connection
 
 ## Configuration
 
