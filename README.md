@@ -21,7 +21,7 @@ This plugin helps Obsidian users who track restaurants, places of interest, or m
   - Google Maps links
 - **Template Support**: Use custom note templates that preserve your structure and tags
 - **Flexible File Management**: Configure filename patterns and target folders
-- **Smart Handling**: Automatic filename collision resolution and error handling
+- Compatibility with [Map View](https://github.com/esm7/obsidian-map-view)
 
 ## Installation
 
