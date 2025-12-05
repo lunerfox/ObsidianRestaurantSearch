@@ -115,22 +115,6 @@ google-places-plugin/
 └── styles.css
 ```
 
-### Build Commands
-
-```bash
-npm install          # Install dependencies
-npm run dev          # Watch mode for development
-npm run build        # Production build
-npm run test         # Run unit tests
-```
-
-### Development Workflow
-
-1. Start watch mode: `npm run dev`
-2. Make code changes
-3. Reload plugin in Obsidian (Ctrl+R)
-4. Test changes in development vault
-
 ## API Integration
 
 This plugin uses [Google Places API (New)](https://developers.google.com/maps/documentation/places/web-service/op-overview) with two main endpoints:
