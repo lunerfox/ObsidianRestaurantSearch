@@ -11,7 +11,7 @@ export class GooglePlacesService {
 
 	async searchPlaces(query: string): Promise<PlaceSearchResult[]> {
 		if (!this.apiKey) {
-			new Notice('Configure your Google Places API key in settings');
+			new Notice('Configure your Google Places API key in plugin settings');
 			throw new Error('API key not configured');
 		}
 
@@ -67,7 +67,7 @@ export class GooglePlacesService {
 
 	async getPlaceDetails(placeId: string): Promise<GooglePlaceDetailsResponse> {
 		if (!this.apiKey) {
-			new Notice('Configure your Google Places API key in settings');
+			new Notice('Configure your Google Places API key in plugin settings');
 			throw new Error('API key not configured');
 		}
 

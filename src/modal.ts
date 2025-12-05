@@ -35,7 +35,7 @@ export class PlaceSearchModal extends Modal {
 		const { contentEl } = this;
 		contentEl.empty();
 
-		contentEl.createEl('h2', { text: 'Search Google Places API' });
+		contentEl.createEl('h2', { text: 'Search Google Places' });
 
 		const searchContainer = contentEl.createDiv({ cls: 'search-container' });
 
@@ -62,7 +62,7 @@ export class PlaceSearchModal extends Modal {
 					});
 			});
 
-		const resultsContainer = contentEl.createDiv({ cls: 'results-container' });
+		contentEl.createDiv({ cls: 'results-container' });
 	}
 
 	async performSearch(query: string) {
@@ -117,7 +117,7 @@ export class PlaceSearchModal extends Modal {
 				});
 			}
 
-		} catch (error) {
+		} catch {
 			resultsContainer.empty();
 			resultsContainer.createEl('p', {
 				text: 'Error performing search. Please try again.',

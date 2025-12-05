@@ -1,6 +1,5 @@
 import { App, PluginSettingTab, Setting, TFile, TFolder, TAbstractFile, Notice, requestUrl } from 'obsidian';
 import GooglePlacesPlugin from './main';
-import { GooglePlacesPluginSettings } from './types';
 
 export class GooglePlacesSettingTab extends PluginSettingTab {
 	plugin: GooglePlacesPlugin;
@@ -15,14 +14,14 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 
-		new Setting(containerEl).setName('Google Places plugin settings').setHeading();
+		new Setting(containerEl).setName('Google Places plugin').setHeading();
 
 		// Create a container for the warning message
 		this.warningEl = containerEl.createDiv({ cls: 'google-places-api-warning' });
 		this.updateWarningVisibility();
 
 		new Setting(containerEl)
-			.setName('Google Places API Key')
+			.setName('Google Places API key')
 			.setDesc('Enter your Google Places API key from Google Cloud Console')
 			.addText(text => text
 				.setPlaceholder('Enter your API key')
@@ -148,33 +147,33 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 			});
 
 			if (response.status === 200) {
-				new Notice('✓ API key is valid and working!');
+				new Notice('API key is valid and working');
 				buttonEl.textContent = '✓ Valid';
 				setTimeout(() => {
 					buttonEl.textContent = originalText;
 				}, 3000);
 			} else if (response.status === 403) {
-				new Notice('✗ Invalid API key. Please check your key in Google Cloud Console.');
+				new Notice('Invalid API key, check your key in Google Cloud Console');
 				buttonEl.textContent = '✗ Invalid';
 				setTimeout(() => {
 					buttonEl.textContent = originalText;
 				}, 3000);
 			} else if (response.status === 400) {
 				// API key might be valid but missing required APIs
-				new Notice('API key may be valid but Google Places API is not enabled. Check your Google Cloud Console.');
+				new Notice('API key may be valid but Google Places API is not enabled, check your Google Cloud Console');
 				buttonEl.textContent = '⚠ Check Console';
 				setTimeout(() => {
 					buttonEl.textContent = originalText;
 				}, 3000);
 			} else {
-				new Notice(`Validation failed with status: ${response.status}`);
+				new Notice(`Validation failed with status ${response.status}`);
 				buttonEl.textContent = '✗ Failed';
 				setTimeout(() => {
 					buttonEl.textContent = originalText;
 				}, 3000);
 			}
-		} catch (error) {
-			new Notice('Network error while validating API key. Please check your connection.');
+		} catch {
+			new Notice('Network error while validating API key, check your connection');
 			buttonEl.textContent = '✗ Error';
 			setTimeout(() => {
 				buttonEl.textContent = originalText;

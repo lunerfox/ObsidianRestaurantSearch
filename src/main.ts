@@ -33,7 +33,7 @@ export default class GooglePlacesPlugin extends Plugin {
 	private registerCommands() {
 		this.addCommand({
 			id: 'search-google-places',
-			name: 'Search and add place from Google Places API',
+			name: 'Search and add place from Google Places',
 			callback: () => {
 				this.openSearchModal(false);
 			}
