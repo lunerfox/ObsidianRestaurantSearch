@@ -4,6 +4,7 @@ import { GooglePlacesPluginSettings } from './types';
 
 export class GooglePlacesSettingTab extends PluginSettingTab {
 	plugin: GooglePlacesPlugin;
+	private warningEl: HTMLElement | null = null;
 
 	constructor(app: App, plugin: GooglePlacesPlugin) {
 		super(app, plugin);
@@ -16,7 +17,11 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 
 		containerEl.createEl('h2', { text: 'Google Places Plugin Settings' });
 
-		new Setting(containerEl)
+		// Create a container for the warning message
+		this.warningEl = containerEl.createDiv({ cls: 'google-places-api-warning' });
+		this.updateWarningVisibility();
+
+		new Setting(containerEl) 
 			.setName('Google Places API Key')
 			.setDesc('Enter your Google Places API key from Google Cloud Console')
 			.addText(text => text
@@ -74,6 +79,7 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 				.onChange(async (value) => {
 					this.plugin.settings.downloadImages = value;
 					await this.plugin.saveSettings();
+					this.updateWarningVisibility();
 				}));
 
 		new Setting(containerEl)
@@ -89,6 +95,22 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					});
 			});
+	}
+
+	private updateWarningVisibility(): void {
+		if (!this.warningEl) return;
+
+		this.warningEl.empty();
+
+		if (!this.plugin.settings.downloadImages) {
+			this.warningEl.createEl('div', {
+				text: '⚠️ Warning: With image downloads disabled, your Google API key will be included in image URLs within your notes. This could expose your API key if you share these notes.',
+				cls: 'setting-item-description mod-warning'
+			});
+			this.warningEl.style.display = 'block';
+		} else {
+			this.warningEl.style.display = 'none';
+		}
 	}
 }
 

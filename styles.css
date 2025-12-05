@@ -1,5 +1,21 @@
 /* Styles for Google Places Search Plugin */
 
+/* Settings warning */
+.google-places-api-warning {
+    margin: 15px 0;
+    padding: 12px 15px;
+    background-color: rgba(255, 82, 82, 0.15);
+    border: 1px solid var(--text-error);
+    border-left: 4px solid var(--text-error);
+    border-radius: 4px;
+}
+
+.google-places-api-warning .mod-warning {
+    color: var(--text-normal);
+    font-weight: 500;
+    line-height: 1.5;
+}
+
 .google-places-modal {
     padding: 20px;
 }
