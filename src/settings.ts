@@ -1,4 +1,4 @@
-import { App, PluginSettingTab, Setting, TFile, TFolder, TAbstractFile, FuzzySuggestModal, FuzzyMatch } from 'obsidian';
+import { App, PluginSettingTab, Setting, TFile, TFolder, TAbstractFile, Notice } from 'obsidian';
 import GooglePlacesPlugin from './main';
 import { GooglePlacesPluginSettings } from './types';
 
@@ -21,7 +21,7 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 		this.warningEl = containerEl.createDiv({ cls: 'google-places-api-warning' });
 		this.updateWarningVisibility();
 
-		new Setting(containerEl) 
+		new Setting(containerEl)
 			.setName('Google Places API Key')
 			.setDesc('Enter your Google Places API key from Google Cloud Console')
 			.addText(text => text
@@ -30,6 +30,12 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 				.onChange(async (value) => {
 					this.plugin.settings.apiKey = value;
 					await this.plugin.saveSettings();
+				}))
+			.addButton(button => button
+				.setButtonText('Validate')
+				.setTooltip('Test your API key connection')
+				.onClick(async () => {
+					await this.validateApiKey(button.buttonEl);
 				}));
 
 		new Setting(containerEl)
@@ -110,6 +116,70 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 			this.warningEl.style.display = 'block';
 		} else {
 			this.warningEl.style.display = 'none';
+		}
+	}
+
+	private async validateApiKey(buttonEl: HTMLElement): Promise<void> {
+		const apiKey = this.plugin.settings.apiKey;
+
+		if (!apiKey || apiKey.trim() === '') {
+			new Notice('Please enter an API key first');
+			return;
+		}
+
+		// Save original button text and disable button
+		const originalText = buttonEl.textContent;
+		buttonEl.textContent = 'Validating...';
+		buttonEl.setAttribute('disabled', 'true');
+
+		try {
+			// Make a simple test request to validate the API key
+			const response = await fetch('https://places.googleapis.com/v1/places:searchText', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'X-Goog-Api-Key': apiKey,
+					'X-Goog-FieldMask': 'places.id'
+				},
+				body: JSON.stringify({
+					textQuery: 'restaurant'
+				})
+			});
+
+			if (response.ok) {
+				new Notice('✓ API key is valid and working!');
+				buttonEl.textContent = '✓ Valid';
+				setTimeout(() => {
+					buttonEl.textContent = originalText;
+				}, 3000);
+			} else if (response.status === 403) {
+				new Notice('✗ Invalid API key. Please check your key in Google Cloud Console.');
+				buttonEl.textContent = '✗ Invalid';
+				setTimeout(() => {
+					buttonEl.textContent = originalText;
+				}, 3000);
+			} else if (response.status === 400) {
+				// API key might be valid but missing required APIs
+				new Notice('API key may be valid but Google Places API is not enabled. Check your Google Cloud Console.');
+				buttonEl.textContent = '⚠ Check Console';
+				setTimeout(() => {
+					buttonEl.textContent = originalText;
+				}, 3000);
+			} else {
+				new Notice(`Validation failed with status: ${response.status}`);
+				buttonEl.textContent = '✗ Failed';
+				setTimeout(() => {
+					buttonEl.textContent = originalText;
+				}, 3000);
+			}
+		} catch (error) {
+			new Notice('Network error while validating API key. Please check your connection.');
+			buttonEl.textContent = '✗ Error';
+			setTimeout(() => {
+				buttonEl.textContent = originalText;
+			}, 3000);
+		} finally {
+			buttonEl.removeAttribute('disabled');
 		}
 	}
 }
