@@ -6,6 +6,8 @@ An Obsidian plugin that allows you to search for places using Google Places API 
 
 This plugin helps Obsidian users who track restaurants, places of interest, or maintain personal location databases. Instead of manually copying and formatting place information, you can search Google Places directly from Obsidian and create notes with structured frontmatter containing all relevant details.
 
+![Recording 2025-12-04 163651](https://github.com/user-attachments/assets/9ada6179-38d2-4f06-a46c-9c18d8e2e2ec)
+
 ## Features
 
 - **Search Integration**: Search for places using Google Places API directly from Command Palette
@@ -25,7 +27,7 @@ This plugin helps Obsidian users who track restaurants, places of interest, or m
 
 ### Prerequisites
 
-- Obsidian v1.0.0 or higher
+- Obsidian v1.8.0 or higher
 - Google Places API key ([Get one here](https://console.cloud.google.com))
 
 ### Setup
