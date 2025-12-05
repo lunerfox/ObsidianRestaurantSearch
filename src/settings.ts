@@ -1,4 +1,4 @@
-import { App, PluginSettingTab, Setting, TFile, TFolder, TAbstractFile, Notice } from 'obsidian';
+import { App, PluginSettingTab, Setting, TFile, TFolder, TAbstractFile, Notice, requestUrl } from 'obsidian';
 import GooglePlacesPlugin from './main';
 import { GooglePlacesPluginSettings } from './types';
 
@@ -15,7 +15,7 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 
-		containerEl.createEl('h2', { text: 'Google Places Plugin Settings' });
+		new Setting(containerEl).setName('Google Places plugin settings').setHeading();
 
 		// Create a container for the warning message
 		this.warningEl = containerEl.createDiv({ cls: 'google-places-api-warning' });
@@ -39,7 +39,7 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 				}));
 
 		new Setting(containerEl)
-			.setName('Template File Path')
+			.setName('Template file path')
 			.setDesc('Path to template file for note structure (e.g., Templates/restaurant-snippet.md)')
 			.addText(text => {
 				new FileSuggest(this.app, text.inputEl);
@@ -53,7 +53,7 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 			});
 
 		new Setting(containerEl)
-			.setName('Target Folder')
+			.setName('Target folder')
 			.setDesc('Folder where new notes will be created (e.g., Restaurants/)')
 			.addText(text => {
 				new FolderSuggest(this.app, text.inputEl);
@@ -67,7 +67,7 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 			});
 
 		new Setting(containerEl)
-			.setName('Filename Format')
+			.setName('Filename format')
 			.setDesc('Pattern for generated filenames. Available variables: {name}, {city}')
 			.addText(text => text
 				.setPlaceholder('{name}')
@@ -78,7 +78,7 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 				}));
 
 		new Setting(containerEl)
-			.setName('Download Images Locally')
+			.setName('Download images locally')
 			.setDesc('Download place photos to your vault instead of linking to Google servers')
 			.addToggle(toggle => toggle
 				.setValue(this.plugin.settings.downloadImages)
@@ -89,7 +89,7 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 				}));
 
 		new Setting(containerEl)
-			.setName('Image Folder')
+			.setName('Image folder')
 			.setDesc('Folder where downloaded images will be stored (e.g., attachments/places)')
 			.addText(text => {
 				new FolderSuggest(this.app, text.inputEl);
@@ -113,9 +113,9 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 				text: '⚠️ Warning: With image downloads disabled, your Google API key will be included in image URLs within your notes. This could expose your API key if you share these notes.',
 				cls: 'setting-item-description mod-warning'
 			});
-			this.warningEl.style.display = 'block';
+			this.warningEl.setCssProps({ display: 'block' });
 		} else {
-			this.warningEl.style.display = 'none';
+			this.warningEl.setCssProps({ display: 'none' });
 		}
 	}
 
@@ -134,7 +134,8 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 
 		try {
 			// Make a simple test request to validate the API key
-			const response = await fetch('https://places.googleapis.com/v1/places:searchText', {
+			const response = await requestUrl({
+				url: 'https://places.googleapis.com/v1/places:searchText',
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -146,7 +147,7 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 				})
 			});
 
-			if (response.ok) {
+			if (response.status === 200) {
 				new Notice('✓ API key is valid and working!');
 				buttonEl.textContent = '✓ Valid';
 				setTimeout(() => {
@@ -244,10 +245,12 @@ abstract class InputSuggest<T> {
 
 		this.suggestEl = createDiv({ cls: 'suggestion-container' });
 		const rect = this.inputEl.getBoundingClientRect();
-		this.suggestEl.style.position = 'absolute';
-		this.suggestEl.style.top = `${rect.bottom}px`;
-		this.suggestEl.style.left = `${rect.left}px`;
-		this.suggestEl.style.width = `${rect.width}px`;
+		this.suggestEl.setCssProps({
+			position: 'absolute',
+			top: `${rect.bottom}px`,
+			left: `${rect.left}px`,
+			width: `${rect.width}px`
+		});
 		document.body.appendChild(this.suggestEl);
 
 		this.renderSuggestions();

@@ -21,7 +21,7 @@ export default class GooglePlacesPlugin extends Plugin {
 
 		this.registerSettingsTab();
 
-		console.log('Google Places Plugin loaded');
+		console.debug('Google Places Plugin loaded');
 	}
 
 	private initializeServices() {
@@ -33,7 +33,7 @@ export default class GooglePlacesPlugin extends Plugin {
 	private registerCommands() {
 		this.addCommand({
 			id: 'search-google-places',
-			name: 'Search and add place from Google Places',
+			name: 'Search and add place from Google Places API',
 			callback: () => {
 				this.openSearchModal(false);
 			}
@@ -67,7 +67,7 @@ export default class GooglePlacesPlugin extends Plugin {
 	}
 
 	onunload() {
-		console.log('Google Places Plugin unloaded');
+		console.debug('Google Places Plugin unloaded');
 	}
 
 	async loadSettings() {

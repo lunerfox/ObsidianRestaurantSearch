@@ -1,4 +1,4 @@
-import { App, Notice, TFile, TFolder, normalizePath } from 'obsidian';
+import { App, Notice, TFile, TFolder, normalizePath, requestUrl } from 'obsidian';
 import { NoteFrontmatter, GooglePlacesPluginSettings } from '../types';
 
 export class NoteCreator {
@@ -19,7 +19,7 @@ export class NoteCreator {
 			targetFolder ? `${targetFolder}/${filename}.md` : `${filename}.md`
 		);
 
-		const uniqueFilePath = await this.getUniqueFilePath(filePath);
+		const uniqueFilePath = this.getUniqueFilePath(filePath);
 
 		const templateContent = await this.loadTemplate();
 		const noteContent = this.buildNoteContent(frontmatter, templateContent, placeName);
@@ -44,7 +44,7 @@ export class NoteCreator {
 		}
 	}
 
-	private async getUniqueFilePath(filePath: string): Promise<string> {
+	private getUniqueFilePath(filePath: string): string {
 		let uniquePath = filePath;
 		let counter = 1;
 
@@ -91,7 +91,7 @@ export class NoteCreator {
 		return `${frontmatterStr}\n# ${placeName}\n\n`;
 	}
 
-	private formatFrontmatter(frontmatter: any): string {
+	private formatFrontmatter(frontmatter: Record<string, unknown>): string {
 		const lines = ['---'];
 
 		// Iterate through all frontmatter fields
@@ -123,7 +123,7 @@ export class NoteCreator {
 			}
 			// Handle regular values (including empty strings)
 			else if (!Array.isArray(value)) {
-				lines.push(`${key}: ${value}`);
+				lines.push(`${key}: ${String(value)}`);
 			}
 		}
 
@@ -132,7 +132,7 @@ export class NoteCreator {
 		return lines.join('\n');
 	}
 
-	private parseTemplate(content: string): { frontmatter: any; body: string } {
+	private parseTemplate(content: string): { frontmatter: Record<string, unknown>; body: string } {
 		const frontmatterRegex = /^---\n([\s\S]*?)\n---\n([\s\S]*)$/;
 		const match = content.match(frontmatterRegex);
 
@@ -144,7 +144,7 @@ export class NoteCreator {
 		const body = match[2].trim();
 
 		// Parse YAML frontmatter (simple key-value parser)
-		const frontmatter: any = {};
+		const frontmatter: Record<string, unknown> = {};
 		const lines = frontmatterText.split('\n');
 		let currentKey = '';
 		let inArray = false;
@@ -160,7 +160,7 @@ export class NoteCreator {
 					if (!Array.isArray(frontmatter[currentKey])) {
 						frontmatter[currentKey] = [];
 					}
-					frontmatter[currentKey].push(trimmedLine.substring(2));
+					(frontmatter[currentKey] as string[]).push(trimmedLine.substring(2));
 				}
 				continue;
 			}
@@ -198,17 +198,21 @@ export class NoteCreator {
 			await this.ensureFolderExists(this.settings.imageFolder);
 
 			// Fetch the image
-			const response = await fetch(photoUrl);
-			if (!response.ok) {
-				throw new Error(`Failed to fetch image: ${response.statusText}`);
+			const response = await requestUrl({
+				url: photoUrl,
+				method: 'GET'
+			});
+			if (response.status >= 400) {
+				throw new Error(`Failed to fetch image: ${response.status}`);
 			}
 
 			// Get image data as array buffer
-			const imageData = await response.arrayBuffer();
+			const imageData = response.arrayBuffer;
 
 			// Generate unique filename
 			const sanitizedName = this.sanitizeImageFilename(placeName);
-			const extension = this.getImageExtension(response.headers.get('content-type') || 'image/jpeg');
+			const contentType = response.headers['content-type'] || 'image/jpeg';
+			const extension = this.getImageExtension(contentType);
 			const baseFilename = `${sanitizedName}.${extension}`;
 			const imagePath = normalizePath(`${this.settings.imageFolder}/${baseFilename}`);
 			const uniqueImagePath = await this.getUniqueImagePath(imagePath);

@@ -45,6 +45,7 @@ export interface NoteFrontmatter {
 	address?: string;
 	isClosed?: boolean;
 	location?: string[];
+	[key: string]: unknown;
 }
 
 export interface GooglePlacesSearchResponse {

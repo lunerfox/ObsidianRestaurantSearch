@@ -1,4 +1,4 @@
-import { Notice } from 'obsidian';
+import { Notice, requestUrl } from 'obsidian';
 import { GooglePlacesSearchResponse, GooglePlaceDetailsResponse, PlaceSearchResult } from '../types';
 
 export class GooglePlacesService {
@@ -11,12 +11,13 @@ export class GooglePlacesService {
 
 	async searchPlaces(query: string): Promise<PlaceSearchResult[]> {
 		if (!this.apiKey) {
-			new Notice('Please configure your Google Places API key in settings');
+			new Notice('Configure your Google Places API key in settings');
 			throw new Error('API key not configured');
 		}
 
 		try {
-			const response = await fetch(`${this.baseUrl}/places:searchText`, {
+			const response = await requestUrl({
+				url: `${this.baseUrl}/places:searchText`,
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -28,7 +29,7 @@ export class GooglePlacesService {
 				})
 			});
 
-			if (!response.ok) {
+			if (response.status >= 400) {
 				if (response.status === 403) {
 					new Notice('Invalid API key. Please check your settings.');
 					throw new Error('Invalid API key');
@@ -40,7 +41,7 @@ export class GooglePlacesService {
 				throw new Error(`API request failed: ${response.status}`);
 			}
 
-			const data: GooglePlacesSearchResponse = await response.json();
+			const data: GooglePlacesSearchResponse = response.json;
 
 			if (!data.places || data.places.length === 0) {
 				new Notice('No results found for your search');
@@ -66,12 +67,13 @@ export class GooglePlacesService {
 
 	async getPlaceDetails(placeId: string): Promise<GooglePlaceDetailsResponse> {
 		if (!this.apiKey) {
-			new Notice('Please configure your Google Places API key in settings');
+			new Notice('Configure your Google Places API key in settings');
 			throw new Error('API key not configured');
 		}
 
 		try {
-			const response = await fetch(`${this.baseUrl}/places/${placeId}`, {
+			const response = await requestUrl({
+				url: `${this.baseUrl}/places/${placeId}`,
 				method: 'GET',
 				headers: {
 					'Content-Type': 'application/json',
@@ -80,7 +82,7 @@ export class GooglePlacesService {
 				}
 			});
 
-			if (!response.ok) {
+			if (response.status >= 400) {
 				if (response.status === 403) {
 					new Notice('Invalid API key. Please check your settings.');
 					throw new Error('Invalid API key');
@@ -92,7 +94,7 @@ export class GooglePlacesService {
 				throw new Error(`API request failed: ${response.status}`);
 			}
 
-			const data: GooglePlaceDetailsResponse = await response.json();
+			const data: GooglePlaceDetailsResponse = response.json;
 			return data;
 
 		} catch (error) {

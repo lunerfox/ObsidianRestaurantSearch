@@ -35,18 +35,18 @@ export class PlaceSearchModal extends Modal {
 		const { contentEl } = this;
 		contentEl.empty();
 
-		contentEl.createEl('h2', { text: 'Search Google Places' });
+		contentEl.createEl('h2', { text: 'Search Google Places API' });
 
 		const searchContainer = contentEl.createDiv({ cls: 'search-container' });
 
 		new Setting(searchContainer)
-			.setName('Search Query')
+			.setName('Search query')
 			.setDesc('Enter place name and location (e.g., "Joe\'s Pizza NYC")')
 			.addText(text => {
 				text.setPlaceholder('Enter search query...');
-				text.inputEl.addEventListener('keypress', async (e) => {
+				text.inputEl.addEventListener('keypress', (e) => {
 					if (e.key === 'Enter') {
-						await this.performSearch(text.getValue());
+						void this.performSearch(text.getValue());
 					}
 				});
 			})
@@ -57,7 +57,7 @@ export class PlaceSearchModal extends Modal {
 					.onClick(async () => {
 						const searchInput = searchContainer.querySelector('input');
 						if (searchInput) {
-							await this.performSearch((searchInput as HTMLInputElement).value);
+							await this.performSearch(searchInput.value);
 						}
 					});
 			});
@@ -112,8 +112,8 @@ export class PlaceSearchModal extends Modal {
 					cls: 'select-button'
 				});
 
-				selectButton.addEventListener('click', async () => {
-					await this.selectPlace(result);
+				selectButton.addEventListener('click', () => {
+					void this.selectPlace(result);
 				});
 			}
 
