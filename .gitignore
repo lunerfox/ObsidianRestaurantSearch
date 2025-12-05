@@ -25,3 +25,6 @@ coverage/
 # Environment
 .env
 .env.local
+
+# Personal dev tools
+copy-to-dev.bat
