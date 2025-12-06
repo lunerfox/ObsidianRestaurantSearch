@@ -78,7 +78,7 @@ export class GooglePlacesService {
 				headers: {
 					'Content-Type': 'application/json',
 					'X-Goog-Api-Key': this.apiKey,
-					'X-Goog-FieldMask': 'id,displayName,formattedAddress,types,rating,photos,location,businessStatus,addressComponents'
+					'X-Goog-FieldMask': 'id,displayName,formattedAddress,types,rating,photos,location,businessStatus,addressComponents,nationalPhoneNumber,internationalPhoneNumber'
 				}
 			});
 

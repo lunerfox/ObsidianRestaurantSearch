@@ -30,6 +30,10 @@ export class DataMapper {
 			frontmatter.address = placeDetails.formattedAddress;
 		}
 
+		if (placeDetails.internationalPhoneNumber || placeDetails.nationalPhoneNumber) {
+			frontmatter.phone = placeDetails.internationalPhoneNumber || placeDetails.nationalPhoneNumber;
+		}
+
 		if (placeDetails.businessStatus) {
 			frontmatter.isClosed = placeDetails.businessStatus === 'CLOSED_PERMANENTLY';
 		}

@@ -124,9 +124,12 @@ export class NoteCreator {
 			// Handle regular values (including empty strings)
 			else if (!Array.isArray(value)) {
 				// Convert value to string, handling objects with JSON.stringify
-				const stringValue = typeof value === 'object' && value !== null
-					? JSON.stringify(value)
-					: String(value);
+				let stringValue: string;
+				if (typeof value === 'object' && value !== null) {
+					stringValue = JSON.stringify(value);
+				} else {
+					stringValue = String(value);
+				}
 				lines.push(`${key}: ${stringValue}`);
 			}
 		}

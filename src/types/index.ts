@@ -43,6 +43,7 @@ export interface NoteFrontmatter {
 	link?: string;
 	image?: string;
 	address?: string;
+	phone?: string;
 	isClosed?: boolean;
 	location?: string[];
 	[key: string]: unknown;
@@ -74,6 +75,8 @@ export interface GooglePlaceDetailsResponse {
 		longitude: number;
 	};
 	businessStatus: string;
+	internationalPhoneNumber?: string;
+	nationalPhoneNumber?: string;
 	addressComponents?: Array<{
 		types: string[];
 		longText: string;
