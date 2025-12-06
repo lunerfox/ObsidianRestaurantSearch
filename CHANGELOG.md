@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.2] - 2025-12-05
+
+### Added
+
+- Phone number support: Plugin now fetches and stores phone numbers from Google Places API
+- Phone numbers are stored in frontmatter (international format preferred, falls back to national format)
+
+### Fixed
+
+- Object stringification linter warning in noteCreator.ts
+- Improved type safety for frontmatter value handling
+
+### Changed
+
+- Updated API field mask to include phone number fields
+
+## [1.2.1] - 2025-12-05
+
+### Fixed
+
+- Console statements changed from `console.log` to `console.debug` for better logging practices
+- Updated all UI text to use sentence case per Obsidian style guidelines (18+ locations)
+- Replaced browser `fetch` API with Obsidian's `requestUrl` API for better plugin compatibility
+- Improved type safety by replacing `any` types with `Record<string, unknown>`
+- Removed async modifier from `getUniqueFilePath` method (no await needed)
+- Enhanced object stringification with proper JSON.stringify handling
+- Cleaned up unused variables and imports
+- Replaced direct style assignments with `setCssProps` method
+- Updated settings heading text to follow Obsidian conventions
+- Fixed Promise return types with void operator for event handlers
+
+### Changed
+
+- Updated command names to be more concise
+- Improved Notice messages to be more descriptive
+
 ## [1.2.0] - 2025-12-04
 
 ### Added
