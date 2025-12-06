@@ -2,6 +2,7 @@ import { Plugin, Editor } from 'obsidian';
 import { GooglePlacesPluginSettings, DEFAULT_SETTINGS } from './types';
 import { GooglePlacesSettingTab } from './settings';
 import { PlaceSearchModal } from './modal';
+import { BatchUpdateModal } from './batchUpdateModal';
 import { GooglePlacesService } from './services/googlePlaces';
 import { DataMapper } from './services/dataMapper';
 import { NoteCreator } from './services/noteCreator';
@@ -46,6 +47,14 @@ export default class GooglePlacesPlugin extends Plugin {
 				this.openSearchModal(true, editor);
 			}
 		});
+
+		this.addCommand({
+			id: 'batch-update-places',
+			name: 'Batch update places',
+			callback: () => {
+				this.openBatchUpdateModal();
+			}
+		});
 	}
 
 	private registerSettingsTab() {
@@ -63,6 +72,17 @@ export default class GooglePlacesPlugin extends Plugin {
 			this.settings,
 			insertLink,
 			editor
+		).open();
+	}
+
+	private openBatchUpdateModal() {
+		this.initializeServices();
+
+		new BatchUpdateModal(
+			this.app,
+			this.settings,
+			this.googlePlacesService,
+			this.dataMapper
 		).open();
 	}
 

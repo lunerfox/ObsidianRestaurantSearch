@@ -100,6 +100,54 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					});
 			});
+
+		// Batch update places section
+		new Setting(containerEl).setName('Batch update places').setHeading();
+
+		new Setting(containerEl)
+			.setName('Address field name')
+			.setDesc('Frontmatter field to read address from (default: address)')
+			.addText(text => text
+				.setPlaceholder('address')
+				.setValue(this.plugin.settings.batchUpdateAddressField)
+				.onChange(async (value) => {
+					this.plugin.settings.batchUpdateAddressField = value;
+					await this.plugin.saveSettings();
+				}));
+
+		new Setting(containerEl)
+			.setName('Use filename as fallback')
+			.setDesc('If no address is found in frontmatter, use the filename to search for the place')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.batchUpdateUseFilenameAsFallback)
+				.onChange(async (value) => {
+					this.plugin.settings.batchUpdateUseFilenameAsFallback = value;
+					await this.plugin.saveSettings();
+				}));
+
+		new Setting(containerEl)
+			.setName('Auto-select single result')
+			.setDesc('Automatically select a place when search returns only one result')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.batchUpdateAutoSelectSingleResult)
+				.onChange(async (value) => {
+					this.plugin.settings.batchUpdateAutoSelectSingleResult = value;
+					await this.plugin.saveSettings();
+				}));
+
+		new Setting(containerEl)
+			.setName('Rate limit delay (ms)')
+			.setDesc('Delay between API calls to avoid rate limiting (default: 500ms)')
+			.addText(text => text
+				.setPlaceholder('500')
+				.setValue(String(this.plugin.settings.batchUpdateRateLimit))
+				.onChange(async (value) => {
+					const numValue = parseInt(value, 10);
+					if (!isNaN(numValue) && numValue >= 0) {
+						this.plugin.settings.batchUpdateRateLimit = numValue;
+						await this.plugin.saveSettings();
+					}
+				}));
 	}
 
 	private updateWarningVisibility(): void {

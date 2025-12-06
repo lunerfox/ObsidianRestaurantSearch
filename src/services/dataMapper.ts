@@ -39,7 +39,10 @@ export class DataMapper {
 		}
 
 		if (placeDetails.location) {
-			frontmatter.location = [`${placeDetails.location.latitude},${placeDetails.location.longitude}`];
+			frontmatter.location = [
+				String(placeDetails.location.latitude),
+				String(placeDetails.location.longitude)
+			];
 		}
 
 		return frontmatter;

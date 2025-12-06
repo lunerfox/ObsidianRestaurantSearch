@@ -38,6 +38,7 @@ export class PlaceSearchModal extends Modal {
 		contentEl.createEl('h2', { text: 'Search Google Places' });
 
 		const searchContainer = contentEl.createDiv({ cls: 'search-container' });
+		searchContainer.style.marginBottom = '1em';
 
 		new Setting(searchContainer)
 			.setName('Search query')
@@ -62,7 +63,9 @@ export class PlaceSearchModal extends Modal {
 					});
 			});
 
-		contentEl.createDiv({ cls: 'results-container' });
+		const resultsContainer = contentEl.createDiv({ cls: 'results-container' });
+		resultsContainer.style.clear = 'both';
+		resultsContainer.style.paddingTop = '1em';
 	}
 
 	async performSearch(query: string) {

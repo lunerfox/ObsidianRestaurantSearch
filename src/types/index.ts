@@ -5,6 +5,10 @@ export interface GooglePlacesPluginSettings {
 	filenameFormat: string;
 	downloadImages: boolean;
 	imageFolder: string;
+	batchUpdateAddressField: string;
+	batchUpdateRateLimit: number;
+	batchUpdateUseFilenameAsFallback: boolean;
+	batchUpdateAutoSelectSingleResult: boolean;
 }
 
 export const DEFAULT_SETTINGS: GooglePlacesPluginSettings = {
@@ -13,7 +17,11 @@ export const DEFAULT_SETTINGS: GooglePlacesPluginSettings = {
 	targetFolder: '',
 	filenameFormat: '{name}',
 	downloadImages: true,
-	imageFolder: 'attachments/places'
+	imageFolder: 'attachments/places',
+	batchUpdateAddressField: 'address',
+	batchUpdateRateLimit: 500,
+	batchUpdateUseFilenameAsFallback: true,
+	batchUpdateAutoSelectSingleResult: true
 };
 
 export interface PlaceSearchResult {

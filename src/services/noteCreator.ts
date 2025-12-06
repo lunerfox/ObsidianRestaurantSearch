@@ -98,13 +98,8 @@ export class NoteCreator {
 		for (const [key, value] of Object.entries(frontmatter)) {
 			if (value === undefined || value === null) continue;
 
-			// Special handling for location (array with single string)
-			if (key === 'location' && Array.isArray(value) && value.length > 0) {
-				lines.push(`location:`);
-				lines.push(`  - ${value[0]}`);
-			}
-			// Handle arrays (except location which is handled above)
-			else if (Array.isArray(value)) {
+			// Handle arrays
+			if (Array.isArray(value)) {
 				if (value.length > 0) {
 					if (key === 'cuisine') {
 						// Cuisine should be inline array format

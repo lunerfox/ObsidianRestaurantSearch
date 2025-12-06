@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2025-12-06
+
+### Added
+
+- Batch update places command to retroactively add geo-data to existing notes
+- New "Batch update places" settings section with configurable options:
+  - Address field name (specify which frontmatter field contains the address)
+  - Use filename as fallback (search by filename when no address exists)
+  - Auto-select single result (automatically select when only one place is found)
+  - Rate limit delay (configurable delay between API calls to avoid rate limiting)
+- Batch update modal with folder path filtering and progress tracking
+- Place selection modal for choosing the correct place when multiple results are found
+- Real-time progress display showing current file and completion percentage
+- Comprehensive results summary with files updated, skipped, and error details
+- API key validation before starting batch operations
+- Cancellation support to stop batch processing mid-operation
+
+### Changed
+
+- Enhanced frontmatter parsing to preserve existing structure during updates
+- Never overwrites existing address or location fields
+
 ## [1.2.2] - 2025-12-05
 
 ### Added
