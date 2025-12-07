@@ -9,6 +9,9 @@ export interface GooglePlacesPluginSettings {
 	batchUpdateRateLimit: number;
 	batchUpdateUseFilenameAsFallback: boolean;
 	batchUpdateAutoSelectSingleResult: boolean;
+	restaurants: {
+		cuisineMappings: { [key: string]: string };
+	};
 }
 
 export const DEFAULT_SETTINGS: GooglePlacesPluginSettings = {
@@ -21,7 +24,32 @@ export const DEFAULT_SETTINGS: GooglePlacesPluginSettings = {
 	batchUpdateAddressField: 'address',
 	batchUpdateRateLimit: 500,
 	batchUpdateUseFilenameAsFallback: true,
-	batchUpdateAutoSelectSingleResult: true
+	batchUpdateAutoSelectSingleResult: true,
+	restaurants: {
+		cuisineMappings: {
+			'restaurant': 'Restaurant',
+			'cafe': 'Cafe',
+			'bar': 'Bar',
+			'bakery': 'Bakery',
+			'meal_takeaway': 'Takeaway',
+			'meal_delivery': 'Delivery',
+			'food': 'Food',
+			'italian_restaurant': 'Italian',
+			'chinese_restaurant': 'Chinese',
+			'japanese_restaurant': 'Japanese',
+			'mexican_restaurant': 'Mexican',
+			'indian_restaurant': 'Indian',
+			'french_restaurant': 'French',
+			'thai_restaurant': 'Thai',
+			'american_restaurant': 'American',
+			'pizza_restaurant': 'Pizza',
+			'seafood_restaurant': 'Seafood',
+			'steakhouse': 'Steakhouse',
+			'sushi_restaurant': 'Sushi',
+			'vegetarian_restaurant': 'Vegetarian',
+			'vegan_restaurant': 'Vegan'
+		}
+	}
 };
 
 export interface PlaceSearchResult {

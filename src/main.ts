@@ -27,7 +27,7 @@ export default class GooglePlacesPlugin extends Plugin {
 
 	private initializeServices() {
 		this.googlePlacesService = new GooglePlacesService(this.settings.apiKey);
-		this.dataMapper = new DataMapper();
+		this.dataMapper = new DataMapper(this.settings);
 		this.noteCreator = new NoteCreator(this.app, this.settings);
 	}
 

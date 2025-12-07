@@ -150,20 +150,49 @@ Fields left for manual entry (or from template):
 ```
 google-places-plugin/
 ├── src/
-│   ├── main.ts              # Plugin entry point
-│   ├── settings.ts          # Settings tab & configuration
-│   ├── modal.ts             # Search modal UI
+│   ├── main.ts                    # Plugin entry point
+│   ├── settings.ts                # Settings tab & configuration
+│   ├── modal.ts                   # Search modal UI
 │   ├── services/
-│   │   ├── googlePlaces.ts  # Google Places API integration
-│   │   ├── noteCreator.ts   # File creation and templates
-│   │   └── dataMapper.ts    # API data transformation
-│   ├── types/
-│   │   └── index.ts         # TypeScript interfaces
-│   └── __tests__/
+│   │   ├── googlePlaces.ts        # Google Places API integration
+│   │   ├── noteCreator.ts         # File creation and templates
+│   │   ├── dataMapper.ts          # API data transformation
+│   │   └── batchUpdateService.ts  # Batch update functionality
+│   └── types/
+│       └── index.ts               # TypeScript interfaces
+├── tests/
+│   ├── unit/                      # Unit tests (121 tests)
+│   ├── integration/               # Integration tests (8 tests)
+│   ├── helpers/                   # Test helpers & mocks
+│   └── fixtures/                  # Test data fixtures
 ├── manifest.json
 ├── package.json
+├── vitest.config.ts               # Test configuration
 └── styles.css
 ```
+
+### Running Tests
+
+```bash
+# Run all tests in watch mode
+npm test
+
+# Run tests once (CI mode)
+npm run test:ci
+
+# Run tests with coverage report
+npm run test:coverage
+
+# Build (includes running tests)
+npm run build
+```
+
+The test suite includes:
+
+- **121 unit tests** covering all services
+- **8 integration tests** for end-to-end workflows
+- Comprehensive mocking of Obsidian API
+- Mock Google Places API responses
 
 ## API Integration
 

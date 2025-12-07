@@ -1,6 +1,8 @@
-import { GooglePlaceDetailsResponse, NoteFrontmatter } from '../types';
+import { GooglePlaceDetailsResponse, NoteFrontmatter, GooglePlacesPluginSettings } from '../types';
 
 export class DataMapper {
+	constructor(private settings: GooglePlacesPluginSettings) {}
+
 	mapPlaceDetailsToFrontmatter(placeDetails: GooglePlaceDetailsResponse): NoteFrontmatter {
 		const frontmatter: NoteFrontmatter = {};
 
@@ -49,29 +51,7 @@ export class DataMapper {
 	}
 
 	private extractCuisineTypes(types: string[]): string[] {
-		const cuisineMap: { [key: string]: string } = {
-			'restaurant': 'Restaurant',
-			'cafe': 'Cafe',
-			'bar': 'Bar',
-			'bakery': 'Bakery',
-			'meal_takeaway': 'Takeaway',
-			'meal_delivery': 'Delivery',
-			'food': 'Food',
-			'italian_restaurant': 'Italian',
-			'chinese_restaurant': 'Chinese',
-			'japanese_restaurant': 'Japanese',
-			'mexican_restaurant': 'Mexican',
-			'indian_restaurant': 'Indian',
-			'french_restaurant': 'French',
-			'thai_restaurant': 'Thai',
-			'american_restaurant': 'American',
-			'pizza_restaurant': 'Pizza',
-			'seafood_restaurant': 'Seafood',
-			'steakhouse': 'Steakhouse',
-			'sushi_restaurant': 'Sushi',
-			'vegetarian_restaurant': 'Vegetarian',
-			'vegan_restaurant': 'Vegan'
-		};
+		const cuisineMap = this.settings.restaurants.cuisineMappings;
 
 		const cuisines: string[] = [];
 		for (const type of types) {

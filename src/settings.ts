@@ -101,6 +101,47 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 					});
 			});
 
+		// Restaurant settings section
+		new Setting(containerEl).setName('Restaurant settings').setHeading();
+
+		new Setting(containerEl)
+			.setName('Cuisine mappings')
+			.setDesc('Map Google Place types to cuisine labels. Format: one mapping per line as "google_type: Label"')
+			.addTextArea(text => {
+				const mappings = this.plugin.settings.restaurants.cuisineMappings;
+				const mappingsText = Object.entries(mappings)
+					.map(([key, value]) => `${key}: ${value}`)
+					.join('\n');
+
+				text
+					.setPlaceholder('restaurant: Restaurant\nitalian_restaurant: Italian')
+					.setValue(mappingsText)
+					.onChange(async (value) => {
+						const newMappings: { [key: string]: string } = {};
+						const lines = value.split('\n');
+
+						for (const line of lines) {
+							const trimmedLine = line.trim();
+							if (trimmedLine) {
+								const colonIndex = trimmedLine.indexOf(':');
+								if (colonIndex > 0) {
+									const key = trimmedLine.substring(0, colonIndex).trim();
+									const val = trimmedLine.substring(colonIndex + 1).trim();
+									if (key && val) {
+										newMappings[key] = val;
+									}
+								}
+							}
+						}
+
+						this.plugin.settings.restaurants.cuisineMappings = newMappings;
+						await this.plugin.saveSettings();
+					});
+
+				text.inputEl.rows = 10;
+				text.inputEl.cols = 50;
+			});
+
 		// Batch update places section
 		new Setting(containerEl).setName('Batch update places').setHeading();
 

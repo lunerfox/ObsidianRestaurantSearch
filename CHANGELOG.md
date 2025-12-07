@@ -2,8 +2,46 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [1.3.2] - 2025-12-07
+
+### Added
+
+- Comprehensive test suite with 129 tests covering:
+  - Unit tests (121 tests):
+    - DataMapper service (31 tests)
+    - GooglePlacesService (19 tests)
+    - NoteCreator service (25 tests)
+    - BatchUpdateService (46 tests)
+  - Integration tests (8 tests):
+    - Search and Create Note workflow (3 tests)
+    - Batch Update workflow (3 tests)
+    - Template Merging workflow (2 tests)
+- Test infrastructure with Vitest, mocks for Obsidian API, and fixture data
+- Automated testing in build process - builds fail if tests fail
+- Test coverage tracking with V8 coverage provider
+- TypeScript strict type checking for production code
+- Comprehensive testing documentation (TESTING.md)
+
+### Changed
+
+- Build process now runs tests before compilation
+- Added ES2017 to TypeScript lib for Object.entries support
+- Updated project structure documentation with test directories
+
+## [1.3.1] - 2025-12-06
+
+### Updated
+
+- Cuisine mappings are now user-configurable through plugin settings
+- Moved cuisine type mappings from hard-coded values to a new "Restaurant settings" section
+- Users can add, modify, or remove cuisine mappings via a text area in settings
+- All existing default cuisine mappings are preserved for backward compatibility
+- Prepared settings structure for future expansion to other place types
 
 ## [1.3.0] - 2025-12-06
 
