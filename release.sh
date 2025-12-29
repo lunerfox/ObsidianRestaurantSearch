@@ -15,10 +15,10 @@ VERSION=$(grep -o '"version": *"[^"]*"' manifest.json | sed 's/"version": *"\(.*
 echo "Current version: $VERSION"
 echo ""
 
-# Check if we're on main branch
+# Check if we're on main/master branch
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
-if [ "$BRANCH" != "main" ]; then
-    echo "WARNING: You are not on the main branch!"
+if [ "$BRANCH" != "main" ] && [ "$BRANCH" != "master" ]; then
+    echo "WARNING: You are not on the main/master branch!"
     echo "Current branch: $BRANCH"
     echo ""
     read -p "Do you want to continue anyway? (y/N) " -n 1 -r

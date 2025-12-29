@@ -18,10 +18,10 @@ for /f "tokens=2 delims=:, " %%a in ('findstr /C:"\"version\"" manifest.json') d
 echo Current version: %VERSION%
 echo.
 
-REM Check if we're on main branch
+REM Check if we're on main/master branch
 for /f "tokens=*" %%a in ('git rev-parse --abbrev-ref HEAD') do set BRANCH=%%a
-if not "%BRANCH%"=="main" (
-    echo WARNING: You are not on the main branch!
+if not "%BRANCH%"=="main" if not "%BRANCH%"=="master" (
+    echo WARNING: You are not on the main/master branch!
     echo Current branch: %BRANCH%
     echo.
     choice /C YN /M "Do you want to continue anyway"
