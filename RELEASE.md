@@ -2,9 +2,27 @@
 
 This document describes how to create a new release of the Google Places Search plugin.
 
+## ⚠️ Important: Obsidian Plugin Versioning Requirements
+
+**CRITICAL:** Obsidian plugins have specific versioning requirements:
+
+1. **GitHub release tags must NOT include a 'v' prefix**
+   - ✅ Correct: `1.5.2`
+   - ❌ Wrong: `v1.5.2`
+
+2. **Tags must exactly match the version in manifest.json**
+   - The tag must be the exact version number with no prefix
+
+3. **Required release assets:**
+   - `main.js` (compiled plugin code)
+   - `manifest.json` (plugin metadata)
+   - `styles.css` (plugin styles)
+
+These requirements are enforced by Obsidian's plugin update mechanism. Releases that don't follow these rules will not be recognized by Obsidian.
+
 ## Automated Release (Recommended)
 
-The plugin includes automated release scripts that handle the entire release process.
+The plugin includes automated release scripts that handle the entire release process and ensure compliance with Obsidian's requirements.
 
 ### Prerequisites
 
@@ -57,7 +75,7 @@ The plugin includes automated release scripts that handle the entire release pro
    - `dist/main.js`
    - `manifest.json`
    - `styles.css`
-5. Creates a git tag (e.g., `v1.5.2`)
+5. Creates a git tag **without 'v' prefix** (e.g., `1.5.2` - required by Obsidian)
 6. Pushes the tag to GitHub
 7. Extracts release notes from CHANGELOG.md
 8. Creates a GitHub release with:
@@ -75,15 +93,15 @@ If you prefer to create releases manually or the automated script fails:
    npm run build
    ```
 
-2. **Create and push a git tag**:
+2. **Create and push a git tag** (⚠️ NO 'v' prefix - required by Obsidian):
    ```bash
-   git tag -a v1.5.2 -m "Release version 1.5.2"
-   git push github v1.5.2
+   git tag -a 1.5.2 -m "Release version 1.5.2"
+   git push github 1.5.2
    ```
 
 3. **Create a GitHub release**:
    - Go to https://github.com/lunerfox/ObsidianRestaurantSearch/releases/new
-   - Select the tag you just created
+   - **IMPORTANT:** Use tag `1.5.2` (NOT `v1.5.2`)
    - Set the release title (e.g., "Version 1.5.2")
    - Copy release notes from CHANGELOG.md
    - Attach these files:

@@ -61,20 +61,20 @@ if not exist "styles.css" (
 echo All required files found
 echo.
 
-REM Create git tag
-echo Creating git tag v%VERSION%...
-git tag -a v%VERSION% -m "Release version %VERSION%"
+REM Create git tag (Obsidian requires tags WITHOUT 'v' prefix)
+echo Creating git tag %VERSION%...
+git tag -a %VERSION% -m "Release version %VERSION%"
 if errorlevel 1 (
     echo ERROR: Failed to create git tag
     exit /b 1
 )
 
 echo Pushing tag to remote...
-git push github v%VERSION%
+git push github %VERSION%
 if errorlevel 1 (
     echo ERROR: Failed to push tag
     echo Rolling back tag creation...
-    git tag -d v%VERSION%
+    git tag -d %VERSION%
     exit /b 1
 )
 
@@ -84,8 +84,8 @@ echo Creating GitHub release...
 REM Extract release notes from CHANGELOG.md
 powershell -Command "$changelog = Get-Content CHANGELOG.md -Raw; $pattern = '## \[%VERSION%\][\s\S]*?(?=\n## \[|$)'; if ($changelog -match $pattern) { $matches[0] } else { 'Release version %VERSION%' }" > release-notes.tmp
 
-REM Create release with assets using GitHub CLI
-gh release create v%VERSION% ^
+REM Create release with assets using GitHub CLI (Obsidian requires tags WITHOUT 'v' prefix)
+gh release create %VERSION% ^
     --title "Version %VERSION%" ^
     --notes-file release-notes.tmp ^
     dist\main.js ^
@@ -105,11 +105,11 @@ del release-notes.tmp
 
 echo.
 echo ========================================
-echo Release v%VERSION% created successfully!
+echo Release %VERSION% created successfully!
 echo ========================================
 echo.
 echo The release is available at:
-echo https://github.com/lunerfox/ObsidianRestaurantSearch/releases/tag/v%VERSION%
+echo https://github.com/lunerfox/ObsidianRestaurantSearch/releases/tag/%VERSION%
 echo.
 
 endlocal

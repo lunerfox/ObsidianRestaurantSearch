@@ -56,12 +56,12 @@ fi
 echo "All required files found"
 echo ""
 
-# Create git tag
-echo "Creating git tag v$VERSION..."
-git tag -a "v$VERSION" -m "Release version $VERSION"
+# Create git tag (Obsidian requires tags WITHOUT 'v' prefix)
+echo "Creating git tag $VERSION..."
+git tag -a "$VERSION" -m "Release version $VERSION"
 
 echo "Pushing tag to remote..."
-git push github "v$VERSION"
+git push github "$VERSION"
 
 echo ""
 echo "Creating GitHub release..."
@@ -73,8 +73,8 @@ if [ -z "$RELEASE_NOTES" ]; then
     RELEASE_NOTES="Release version $VERSION"
 fi
 
-# Create release with assets using GitHub CLI
-gh release create "v$VERSION" \
+# Create release with assets using GitHub CLI (Obsidian requires tags WITHOUT 'v' prefix)
+gh release create "$VERSION" \
     --title "Version $VERSION" \
     --notes "$RELEASE_NOTES" \
     dist/main.js \
@@ -83,9 +83,9 @@ gh release create "v$VERSION" \
 
 echo ""
 echo "========================================"
-echo "Release v$VERSION created successfully!"
+echo "Release $VERSION created successfully!"
 echo "========================================"
 echo ""
 echo "The release is available at:"
-echo "https://github.com/lunerfox/ObsidianRestaurantSearch/releases/tag/v$VERSION"
+echo "https://github.com/lunerfox/ObsidianRestaurantSearch/releases/tag/$VERSION"
 echo ""
