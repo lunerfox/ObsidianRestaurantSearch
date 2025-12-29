@@ -9,7 +9,8 @@
     "typecheck": "tsc -noEmit -skipLibCheck -p tsconfig.build.json",
     "test": "vitest",
     "test:ci": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "release": "bash release.sh"
   },
   "keywords": [
     "obsidian",
