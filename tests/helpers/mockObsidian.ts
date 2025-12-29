@@ -148,13 +148,30 @@ export class MockVault {
 }
 
 /**
+ * Mock implementation of Obsidian's Workspace
+ */
+export class MockWorkspace {
+	private activeFile: TFile | null = null;
+
+	getActiveFile(): TFile | null {
+		return this.activeFile;
+	}
+
+	setActiveFile(file: TFile | null): void {
+		this.activeFile = file;
+	}
+}
+
+/**
  * Mock implementation of Obsidian's App
  */
 export class MockApp {
 	vault: MockVault;
+	workspace: MockWorkspace;
 
 	constructor() {
 		this.vault = new MockVault();
+		this.workspace = new MockWorkspace();
 	}
 }
 

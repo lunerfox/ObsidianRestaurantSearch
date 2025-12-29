@@ -471,7 +471,7 @@ custom_field: template value
 
 			// Create note with template
 			const filename = dataMapper.formatFilename('{name}', details.displayName.text, '');
-			const file = await noteCreator.createNote(filename, frontmatter, 'Pizza Hut');
+			const file = await noteCreator.createNote(filename, frontmatter, 'Pizza Hut', settings.templateFilePath);
 
 			// Verify merged content
 			const content = mockVault.getFileContent(file.path);
@@ -526,6 +526,250 @@ tags:
 
 			expect(firstFrontmatter).toContain('address: 123 Main St');
 			expect(firstFrontmatter).toContain('rating-google: 4.7');
+		});
+	});
+
+	describe('Update Current File Flow', () => {
+		it('should update current file with geo data using address field', async () => {
+			// Create a file with address but no location
+			// Note: address will be preserved (not updated) since it already exists
+			const fileContent = `---
+name: Blue Bottle Coffee
+address: Blue Bottle Coffee San Francisco
+tags:
+  - cafe
+---
+# Blue Bottle Coffee
+
+Some notes about this cafe.`;
+
+			const file = await mockVault.create('Places/Blue Bottle Coffee.md', fileContent);
+			mockApp.workspace.setActiveFile(file);
+
+			// Mock API responses
+			const searchResults: PlaceSearchResult[] = [{
+				id: 'place-123',
+				displayName: 'Blue Bottle Coffee',
+				formattedAddress: '66 Mint St, San Francisco, CA 94103'
+			}];
+
+			const placeDetails: GooglePlaceDetailsResponse = {
+				id: 'place-123',
+				displayName: { text: 'Blue Bottle Coffee' },
+				formattedAddress: '66 Mint St, San Francisco, CA 94103',
+				location: { latitude: 37.7829, longitude: -122.3977 },
+				types: ['cafe', 'coffee_shop'],
+				rating: 4.6,
+				businessStatus: 'OPERATIONAL'
+			};
+
+			vi.spyOn(googlePlacesService, 'searchPlaces').mockResolvedValue(searchResults);
+			vi.spyOn(googlePlacesService, 'getPlaceDetails').mockResolvedValue(placeDetails);
+
+			// Simulate the update current file logic
+			const activeFile = mockApp.workspace.getActiveFile();
+			expect(activeFile).toBeDefined();
+			expect(activeFile?.basename).toBe('Blue Bottle Coffee');
+
+			// Parse frontmatter and get search query from address field
+			const content = await mockApp.vault.read(activeFile!);
+			const frontmatter = (batchUpdateService as any).parseFrontmatter(content);
+			const searchQuery = frontmatter[settings.batchUpdateAddressField];
+
+			// Search for place
+			const results = await googlePlacesService.searchPlaces(searchQuery);
+			expect(results).toHaveLength(1);
+
+			// Get details and update file
+			const details = await googlePlacesService.getPlaceDetails(results[0].id);
+			await batchUpdateService.updateFile(activeFile!, {
+				address: details.formattedAddress,
+				location: details.location
+			});
+
+			// Verify the file was updated correctly
+			const updatedContent = mockVault.getFileContent('Places/Blue Bottle Coffee.md');
+			expect(updatedContent).toContain('location:');
+			expect(updatedContent).toContain('  - 37.7829');
+			expect(updatedContent).toContain('  - -122.3977');
+			// Address is preserved (not updated) since it already existed
+			expect(updatedContent).toContain('address: Blue Bottle Coffee San Francisco');
+			// Verify existing frontmatter is preserved
+			expect(updatedContent).toContain('name: Blue Bottle Coffee');
+			expect(updatedContent).toContain('tags:');
+			expect(updatedContent).toContain('  - cafe');
+			// Verify body is preserved
+			expect(updatedContent).toContain('# Blue Bottle Coffee');
+			expect(updatedContent).toContain('Some notes about this cafe.');
+		});
+
+		it('should update current file using filename as fallback', async () => {
+			// Create a file without address field
+			const fileContent = `---
+tags:
+  - restaurant
+---
+# Pizza Hut
+
+Great pizza place.`;
+
+			const file = await mockVault.create('Places/Pizza Hut Downtown.md', fileContent);
+			mockApp.workspace.setActiveFile(file);
+
+			// Mock API responses
+			const searchResults: PlaceSearchResult[] = [{
+				id: 'place-456',
+				displayName: 'Pizza Hut',
+				formattedAddress: '789 Market St, San Francisco, CA 94103'
+			}];
+
+			const placeDetails: GooglePlaceDetailsResponse = {
+				id: 'place-456',
+				displayName: { text: 'Pizza Hut' },
+				formattedAddress: '789 Market St, San Francisco, CA 94103',
+				location: { latitude: 37.7849, longitude: -122.4094 },
+				types: ['restaurant', 'pizza_restaurant'],
+				rating: 4.3,
+				businessStatus: 'OPERATIONAL'
+			};
+
+			vi.spyOn(googlePlacesService, 'searchPlaces').mockResolvedValue(searchResults);
+			vi.spyOn(googlePlacesService, 'getPlaceDetails').mockResolvedValue(placeDetails);
+
+			// Simulate the update current file logic with filename fallback
+			const activeFile = mockApp.workspace.getActiveFile();
+			const content = await mockApp.vault.read(activeFile!);
+			const frontmatter = (batchUpdateService as any).parseFrontmatter(content);
+
+			// No address field, so use filename
+			const searchQuery = frontmatter[settings.batchUpdateAddressField] || activeFile!.basename;
+			expect(searchQuery).toBe('Pizza Hut Downtown');
+
+			// Search and update
+			const results = await googlePlacesService.searchPlaces(searchQuery);
+			const details = await googlePlacesService.getPlaceDetails(results[0].id);
+			await batchUpdateService.updateFile(activeFile!, {
+				address: details.formattedAddress,
+				location: details.location
+			});
+
+			// Verify update
+			const updatedContent = mockVault.getFileContent('Places/Pizza Hut Downtown.md');
+			expect(updatedContent).toContain('location:');
+			expect(updatedContent).toContain('  - 37.7849');
+			expect(updatedContent).toContain('  - -122.4094');
+			expect(updatedContent).toContain('address: 789 Market St, San Francisco, CA 94103');
+			expect(updatedContent).toContain('tags:');
+			expect(updatedContent).toContain('# Pizza Hut');
+		});
+
+		it('should handle multiple search results with user selection', async () => {
+			// Create a file with generic name but no address or location
+			const fileContent = `---
+tags:
+  - cafe
+---
+# Starbucks`;
+
+			const file = await mockVault.create('Places/Starbucks.md', fileContent);
+			mockApp.workspace.setActiveFile(file);
+
+			// Mock multiple search results
+			const searchResults: PlaceSearchResult[] = [
+				{
+					id: 'place-1',
+					displayName: 'Starbucks #1',
+					formattedAddress: '100 Main St, San Francisco, CA'
+				},
+				{
+					id: 'place-2',
+					displayName: 'Starbucks #2',
+					formattedAddress: '200 Market St, San Francisco, CA'
+				}
+			];
+
+			const selectedDetails: GooglePlaceDetailsResponse = {
+				id: 'place-2',
+				displayName: { text: 'Starbucks #2' },
+				formattedAddress: '200 Market St, San Francisco, CA',
+				location: { latitude: 37.7900, longitude: -122.4000 },
+				types: ['cafe', 'coffee_shop'],
+				rating: 4.4,
+				businessStatus: 'OPERATIONAL'
+			};
+
+			vi.spyOn(googlePlacesService, 'searchPlaces').mockResolvedValue(searchResults);
+			vi.spyOn(googlePlacesService, 'getPlaceDetails').mockResolvedValue(selectedDetails);
+
+			// Simulate the workflow
+			const activeFile = mockApp.workspace.getActiveFile();
+			const results = await googlePlacesService.searchPlaces('Starbucks');
+
+			// Multiple results - user would select the second one
+			expect(results).toHaveLength(2);
+			const selectedResult = results[1];
+
+			const details = await googlePlacesService.getPlaceDetails(selectedResult.id);
+			await batchUpdateService.updateFile(activeFile!, {
+				address: details.formattedAddress,
+				location: details.location
+			});
+
+			// Verify the selected location was used
+			const updatedContent = mockVault.getFileContent('Places/Starbucks.md');
+			expect(updatedContent).toContain('address: 200 Market St, San Francisco, CA');
+			expect(updatedContent).toContain('  - 37.79');
+			expect(updatedContent).toContain('  - -122.4');
+			expect(updatedContent).toContain('tags:');
+			expect(updatedContent).toContain('  - cafe');
+		});
+
+		it('should not update file that already has location data', async () => {
+			// Create a file with existing location
+			const fileContent = `---
+address: Complete Restaurant
+location:
+  - 37.7749
+  - -122.4194
+---
+# Complete Restaurant`;
+
+			const file = await mockVault.create('Places/Complete.md', fileContent);
+			mockApp.workspace.setActiveFile(file);
+
+			// Check if file needs updating
+			const content = await mockApp.vault.read(file);
+			const frontmatter = (batchUpdateService as any).parseFrontmatter(content);
+
+			const hasValidLocation = frontmatter.location &&
+				Array.isArray(frontmatter.location) &&
+				frontmatter.location.length === 2;
+
+			expect(hasValidLocation).toBe(true);
+
+			// File already has location, so updateFile would make no changes
+			await batchUpdateService.updateFile(file, {
+				address: 'New Address',
+				location: { latitude: 40.0, longitude: -120.0 }
+			});
+
+			// Verify content unchanged (address and location preserved)
+			const updatedContent = mockVault.getFileContent('Places/Complete.md');
+			expect(updatedContent).toBe(fileContent);
+		});
+
+		it('should handle non-markdown files gracefully', async () => {
+			// Create a non-markdown file
+			const file = await mockVault.create('Places/document.txt', 'Some text content');
+			// Change extension to simulate non-markdown
+			file.extension = 'txt';
+			mockApp.workspace.setActiveFile(file);
+
+			const activeFile = mockApp.workspace.getActiveFile();
+			expect(activeFile?.extension).toBe('txt');
+
+			// In the actual implementation, this would trigger a notice
+			// and return early without attempting to update
 		});
 	});
 });

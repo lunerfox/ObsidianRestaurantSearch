@@ -7,6 +7,92 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.2] - 2025-12-28
+
+### Fixed
+
+- Template name input field no longer loses focus after each keystroke in settings
+  - Previously, editing a template name required clicking back into the input after each character
+  - Now you can type continuously without interruption
+- File and folder autocomplete suggestions now update in real-time as you type
+  - Autocomplete list refreshes with each keystroke for immediate feedback
+  - Improves UX when selecting template files and target folders
+
+## [1.5.1] - 2025-12-28
+
+### Added
+
+- "Search selection" commands now preserve the user's original search text as an alias in the note frontmatter
+  - Only adds alias if the selected text differs from the place's official name
+  - Allows notes to be found using the original search term
+
+## [1.5.0] - 2025-12-28
+
+### Added
+
+- "Search selection" commands for each template - search using selected text from the editor
+  - One command per configured template (e.g., "Search selection - Restaurant", "Search selection - Cafe")
+  - Commands can be assigned custom hotkeys through Obsidian's native hotkey settings
+  - Automatically creates note and replaces selection with wikilink to the new note
+  - Smart result handling:
+    - Auto-selects when only one result is found (no modal shown)
+    - Shows selection modal only when multiple results are found
+    - Shows helpful notice when no results are found
+  - Works with all template configurations including "No Template" mode
+
+### Changed
+
+- Improved user experience with context-aware notifications during selection-based search
+
+## [1.4.1] - 2025-12-22
+
+### Added
+
+- "Update current file geo data" command to add geolocation and address to the currently active file
+  - Searches using existing address field first, falls back to filename
+  - Shows selection modal when multiple places are found
+  - Auto-selects when only one result is found
+  - Only updates address and location fields, preserving all other frontmatter
+
+### Changed
+
+### Fixed
+
+## [1.4.0] - 2025-12-07
+
+### Added
+
+- Multiple template support - define and use different templates for different types of places
+- Template management UI in settings:
+  - Add/remove templates with custom names
+  - Configure template file paths with autocomplete
+  - Per-template target folder override (optional)
+  - Built-in "No Template" option for minimal notes
+- Template selection dropdown in search modal
+- Dynamic command registration - separate commands for each template:
+  - "Search Google Places - {Template Name}" commands
+  - "Search and insert link - {Template Name}" commands
+- "Remember last used template" setting to automatically select last-used template
+- Support for creating notes without templates (geo location and address only)
+- Automatic migration from single template to multiple templates
+- Command name updates when template names change (without plugin restart)
+
+### Changed
+
+- Settings UI reorganized with dedicated "Templates" section
+- Command naming updated for clarity ("Search Google Places" instead of "Search and add place from Google Places")
+- Template file path is now passed as parameter instead of read from global settings
+- "No Template" mode now only includes essential fields (address, location, link, phone, image) - excludes cuisine and other metadata
+
+### Fixed
+
+- Template commands now refresh immediately when template names are changed in settings
+- "No Template" mode no longer includes cuisine or other non-essential frontmatter fields
+
+### Deprecated
+
+- `templateFilePath` setting (replaced by `templates` array) - automatically migrated on plugin load
+
 ## [1.3.2] - 2025-12-07
 
 ### Added

@@ -10,18 +10,24 @@ export class NoteCreator {
 		this.settings = settings;
 	}
 
-	async createNote(filename: string, frontmatter: NoteFrontmatter, placeName: string): Promise<TFile> {
-		const targetFolder = this.settings.targetFolder;
+	async createNote(
+		filename: string,
+		frontmatter: NoteFrontmatter,
+		placeName: string,
+		templatePath?: string,
+		targetFolder?: string
+	): Promise<TFile> {
+		const folder = targetFolder || this.settings.targetFolder;
 
-		await this.ensureFolderExists(targetFolder);
+		await this.ensureFolderExists(folder);
 
 		const filePath = normalizePath(
-			targetFolder ? `${targetFolder}/${filename}.md` : `${filename}.md`
+			folder ? `${folder}/${filename}.md` : `${filename}.md`
 		);
 
 		const uniqueFilePath = this.getUniqueFilePath(filePath);
 
-		const templateContent = await this.loadTemplate();
+		const templateContent = await this.loadTemplate(templatePath);
 		const noteContent = this.buildNoteContent(frontmatter, templateContent, placeName);
 
 		const file = await this.app.vault.create(uniqueFilePath, noteContent);
@@ -57,20 +63,21 @@ export class NoteCreator {
 		return uniquePath;
 	}
 
-	private async loadTemplate(): Promise<string> {
-		if (!this.settings.templateFilePath) {
+	private async loadTemplate(templatePath?: string): Promise<string> {
+		// If no template path provided, return empty (no template mode)
+		if (!templatePath) {
 			return '';
 		}
 
 		try {
 			const templateFile = this.app.vault.getAbstractFileByPath(
-				normalizePath(this.settings.templateFilePath)
+				normalizePath(templatePath)
 			);
 
 			if (templateFile instanceof TFile) {
 				return await this.app.vault.read(templateFile);
 			} else {
-				new Notice(`Template file not found: ${this.settings.templateFilePath}`);
+				new Notice(`Template file not found: ${templatePath}`);
 				return '';
 			}
 		} catch (error) {

@@ -1,5 +1,7 @@
 import { App, PluginSettingTab, Setting, TFile, TFolder, TAbstractFile, Notice, requestUrl } from 'obsidian';
 import GooglePlacesPlugin from './main';
+// @ts-ignore
+import manifest from '../manifest.json';
 
 export class GooglePlacesSettingTab extends PluginSettingTab {
 	plugin: GooglePlacesPlugin;
@@ -15,6 +17,11 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		new Setting(containerEl).setName('Google Places plugin').setHeading();
+
+		containerEl.createEl('p', {
+			text: `Version ${manifest.version}`,
+			cls: 'setting-item-description'
+		});
 
 		// Create a container for the warning message
 		this.warningEl = containerEl.createDiv({ cls: 'google-places-api-warning' });
@@ -37,19 +44,104 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 					await this.validateApiKey(button.buttonEl);
 				}));
 
-		new Setting(containerEl)
-			.setName('Template file path')
-			.setDesc('Path to template file for note structure (e.g., Templates/restaurant-snippet.md)')
-			.addText(text => {
-				new FileSuggest(this.app, text.inputEl);
-				text
-					.setPlaceholder('Templates/restaurant-snippet.md')
-					.setValue(this.plugin.settings.templateFilePath)
-					.onChange(async (value) => {
-						this.plugin.settings.templateFilePath = value;
+		// Templates section
+		new Setting(containerEl).setName('Templates').setHeading();
+
+		containerEl.createEl('p', {
+			text: 'Define templates for different types of places. Each template can be selected when creating a new place note.',
+			cls: 'setting-item-description'
+		});
+
+		// Display existing templates
+		this.plugin.settings.templates.forEach((template, index) => {
+			// Skip "No Template" as it's built-in
+			if (template.name === 'No Template' && template.path === '') {
+				return;
+			}
+
+			// Template name and remove button
+			const templateSetting = new Setting(containerEl)
+				.setClass('template-item')
+				.setName(`Template: ${template.name}`)
+				.addText(text => {
+					text
+						.setPlaceholder('Template name')
+						.setValue(template.name)
+						.onChange(async (value) => {
+							this.plugin.settings.templates[index].name = value;
+							// Update the heading dynamically without refreshing entire page
+							templateSetting.setName(`Template: ${value}`);
+							await this.plugin.saveSettings();
+						});
+					text.inputEl.style.width = '200px';
+				})
+				.addButton(button => button
+					.setButtonText('Remove')
+					.setWarning()
+					.onClick(async () => {
+						this.plugin.settings.templates.splice(index, 1);
 						await this.plugin.saveSettings();
-					});
-			});
+						this.display(); // Refresh the settings display
+					}));
+
+			// Template file path
+			new Setting(containerEl)
+				.setClass('template-subitem')
+				.setName('Template file')
+				.addText(text => {
+					new FileSuggest(this.app, text.inputEl);
+					text
+						.setPlaceholder('Templates/template.md')
+						.setValue(template.path)
+						.onChange(async (value) => {
+							this.plugin.settings.templates[index].path = value;
+							await this.plugin.saveSettings();
+						});
+					text.inputEl.style.width = '400px';
+				});
+
+			// Target folder (optional)
+			new Setting(containerEl)
+				.setClass('template-subitem')
+				.setName('Target folder (optional)')
+				.setDesc('Override the default target folder for this template')
+				.addText(text => {
+					new FolderSuggest(this.app, text.inputEl);
+					text
+						.setPlaceholder('Leave empty to use default')
+						.setValue(template.targetFolder || '')
+						.onChange(async (value) => {
+							this.plugin.settings.templates[index].targetFolder = value || undefined;
+							await this.plugin.saveSettings();
+						});
+					text.inputEl.style.width = '400px';
+				});
+
+			// Add spacing between templates
+			containerEl.createEl('div', { cls: 'setting-item-separator' });
+		});
+
+		// Add template button
+		new Setting(containerEl)
+			.addButton(button => button
+				.setButtonText('Add template')
+				.setCta()
+				.onClick(async () => {
+					this.plugin.settings.templates.push({ name: 'New Template', path: '' });
+					await this.plugin.saveSettings();
+					this.display(); // Refresh the settings display
+				}));
+
+		// Remember last template setting
+		new Setting(containerEl)
+			.setName('Remember last used template')
+			.setDesc('Automatically select the last-used template when opening the search modal')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.rememberLastTemplate)
+				.onChange(async (value) => {
+					this.plugin.settings.rememberLastTemplate = value;
+					await this.plugin.saveSettings();
+				}));
 
 		new Setting(containerEl)
 			.setName('Target folder')
@@ -303,6 +395,8 @@ abstract class InputSuggest<T> {
 
 		if (this.suggestions.length > 0) {
 			this.open();
+			// Re-render suggestions when input changes
+			this.renderSuggestions();
 		} else {
 			this.close();
 		}

@@ -96,7 +96,7 @@ tags:
 			noteCreator = new NoteCreator(mockApp as any, settings);
 
 			const frontmatter = { name: 'Test' };
-			await noteCreator.createNote('Test', frontmatter, 'Test');
+			await noteCreator.createNote('Test', frontmatter, 'Test', 'template.md');
 
 			const content = mockVault.getFileContent('Places/Test.md');
 			expect(content).toContain('## Notes');
@@ -206,7 +206,7 @@ custom: value
 			noteCreator = new NoteCreator(mockApp as any, settings);
 
 			const frontmatter = { name: 'Test' };
-			await noteCreator.createNote('Test', frontmatter, 'Test');
+			await noteCreator.createNote('Test', frontmatter, 'Test', 'template.md');
 
 			const content = mockVault.getFileContent('Places/Test.md');
 			expect(content).toContain('custom: value');
@@ -222,7 +222,7 @@ Some content`;
 			noteCreator = new NoteCreator(mockApp as any, settings);
 
 			const frontmatter = { name: 'Test' };
-			await noteCreator.createNote('Test', frontmatter, 'Test');
+			await noteCreator.createNote('Test', frontmatter, 'Test', 'template.md');
 
 			const content = mockVault.getFileContent('Places/Test.md');
 			expect(content).toContain('# Just a heading');
@@ -259,7 +259,7 @@ Body`;
 			noteCreator = new NoteCreator(mockApp as any, settings);
 
 			const frontmatter = { name: 'Test', newField: 'added' };
-			await noteCreator.createNote('Test', frontmatter, 'Test');
+			await noteCreator.createNote('Test', frontmatter, 'Test', 'template.md');
 
 			const content = mockVault.getFileContent('Places/Test.md');
 			expect(content).toContain('name: Test');

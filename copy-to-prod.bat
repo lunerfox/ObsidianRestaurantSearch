@@ -33,5 +33,4 @@ if errorlevel 1 (
 )
 
 echo Successfully copied files to development vault!
-pause
 exit /b 0

@@ -1,6 +1,15 @@
+export interface PlaceTemplate {
+	name: string;
+	path: string; // empty string means "No Template"
+	targetFolder?: string; // Optional: override global targetFolder for this template
+}
+
 export interface GooglePlacesPluginSettings {
 	apiKey: string;
-	templateFilePath: string;
+	templateFilePath: string; // Deprecated - kept for migration only
+	templates: PlaceTemplate[];
+	rememberLastTemplate: boolean;
+	lastUsedTemplateIndex: number;
 	targetFolder: string;
 	filenameFormat: string;
 	downloadImages: boolean;
@@ -16,7 +25,12 @@ export interface GooglePlacesPluginSettings {
 
 export const DEFAULT_SETTINGS: GooglePlacesPluginSettings = {
 	apiKey: '',
-	templateFilePath: '',
+	templateFilePath: '', // Deprecated - kept for migration only
+	templates: [
+		{ name: 'No Template', path: '' }
+	],
+	rememberLastTemplate: true,
+	lastUsedTemplateIndex: 0,
 	targetFolder: '',
 	filenameFormat: '{name}',
 	downloadImages: true,
