@@ -1,7 +1,7 @@
 {
   "id": "places-search",
   "name": "Google Places Search",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "minAppVersion": "1.8.0",
   "description": "Search for places using Google Places API and create structured notes with rich metadata.",
   "author": "Leo Szeto",

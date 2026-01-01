@@ -1,6 +1,6 @@
 {
   "name": "obsidian-google-places",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "description": "Search for places using Google Places API and create structured notes in Obsidian",
   "main": "main.js",
   "scripts": {
