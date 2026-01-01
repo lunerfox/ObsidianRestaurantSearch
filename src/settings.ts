@@ -465,6 +465,45 @@ abstract class InputSuggest<T> {
 		}
 		this.selectedItem = -1;
 	}
+
+	protected renderMatchWithHighlight(el: HTMLElement, text: string, query: string): void {
+		if (!query) {
+			el.setText(text);
+			return;
+		}
+
+		const lowerText = text.toLowerCase();
+		const lowerQuery = query.toLowerCase();
+		const parts: { text: string; isMatch: boolean }[] = [];
+		let lastIndex = 0;
+
+		let index = lowerText.indexOf(lowerQuery, lastIndex);
+		while (index !== -1) {
+			// Add non-matching text before this match
+			if (index > lastIndex) {
+				parts.push({ text: text.substring(lastIndex, index), isMatch: false });
+			}
+			// Add matching text
+			parts.push({ text: text.substring(index, index + query.length), isMatch: true });
+			lastIndex = index + query.length;
+			index = lowerText.indexOf(lowerQuery, lastIndex);
+		}
+
+		// Add remaining non-matching text
+		if (lastIndex < text.length) {
+			parts.push({ text: text.substring(lastIndex), isMatch: false });
+		}
+
+		// Render parts with bold tags for matches
+		el.empty();
+		parts.forEach(part => {
+			if (part.isMatch) {
+				el.createEl('strong', { text: part.text });
+			} else {
+				el.appendText(part.text);
+			}
+		});
+	}
 }
 
 // File suggester for template file path
@@ -479,7 +518,7 @@ class FileSuggest extends InputSuggest<TFile> {
 	}
 
 	protected renderSuggestion(file: TFile, el: HTMLElement): void {
-		el.setText(file.path);
+		this.renderMatchWithHighlight(el, file.path, this.inputEl.value);
 	}
 
 	protected selectSuggestion(file: TFile): void {
@@ -504,7 +543,7 @@ class FolderSuggest extends InputSuggest<TFolder> {
 	}
 
 	protected renderSuggestion(folder: TFolder, el: HTMLElement): void {
-		el.setText(folder.path);
+		this.renderMatchWithHighlight(el, folder.path, this.inputEl.value);
 	}
 
 	protected selectSuggestion(folder: TFolder): void {
