@@ -6,8 +6,12 @@ export class DataMapper {
 	mapPlaceDetailsToFrontmatter(placeDetails: GooglePlaceDetailsResponse): NoteFrontmatter {
 		const frontmatter: NoteFrontmatter = {};
 
+		// Only add cuisine if types exist and mapping produces results
 		if (placeDetails.types && placeDetails.types.length > 0) {
-			frontmatter.cuisine = this.extractCuisineTypes(placeDetails.types);
+			const cuisines = this.extractCuisineTypes(placeDetails.types);
+			if (cuisines.length > 0) {
+				frontmatter.cuisine = cuisines;
+			}
 		}
 
 		if (placeDetails.addressComponents) {
@@ -60,7 +64,8 @@ export class DataMapper {
 			}
 		}
 
-		return cuisines.length > 0 ? cuisines : ['Restaurant'];
+		// Return empty array if no cuisine types found (removed hardcoded fallback)
+		return cuisines;
 	}
 
 	private extractCity(addressComponents: Array<{ types: string[]; longText: string }>): string | undefined {

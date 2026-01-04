@@ -7,6 +7,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2026-01-04
+
+### Fixed
+- Removed hardcoded `cuisine` property for non-restaurant places (#1)
+- Cuisine field now only appears when place has food-related types
+- Smart field population: only includes fields that exist in template (case-insensitive)
+- Essential fields (address, location, link, phone) are always included
+
+### Added
+- New "Search selection - Choose Template" command (#2)
+- Template selection modal for search selection workflow
+- Select template before searching instead of needing separate commands
+- Case-insensitive template field matching
+- Better handling of nested fields in templates
+
+### Documentation
+- Added documentation for available frontmatter fields
+- Documented essential fields that are always populated
+
 ## [1.5.2] - 2025-12-28
 
 ### Fixed

@@ -57,13 +57,22 @@ describe('NoteCreator', () => {
 		});
 
 		it('should format frontmatter correctly as YAML', async () => {
+			// Create template with these fields to ensure they're included
+			const templateContent = `---
+name:
+rating:
+cuisine:
+---
+`;
+			await mockVault.create('template.md', templateContent);
+
 			const frontmatter = {
 				name: 'Test',
 				rating: 4.5,
 				cuisine: ['Italian', 'Pizza']
 			};
 
-			await noteCreator.createNote('Test', frontmatter, 'Test');
+			await noteCreator.createNote('Test', frontmatter, 'Test', 'template.md');
 
 			const content = mockVault.getFileContent('Places/Test.md');
 			expect(content).toContain('---');
@@ -130,8 +139,15 @@ tags:
 		});
 
 		it('should handle string values correctly', async () => {
+			const templateContent = `---
+name:
+city:
+---
+`;
+			await mockVault.create('template2.md', templateContent);
+
 			const frontmatter = { name: 'Test Restaurant', city: 'New York' };
-			await noteCreator.createNote('Test', frontmatter, 'Test');
+			await noteCreator.createNote('Test', frontmatter, 'Test', 'template2.md');
 
 			const content = mockVault.getFileContent('Places/Test.md');
 			expect(content).toContain('name: Test Restaurant');
@@ -139,8 +155,15 @@ tags:
 		});
 
 		it('should handle number values correctly', async () => {
+			const templateContent = `---
+rating:
+count:
+---
+`;
+			await mockVault.create('template3.md', templateContent);
+
 			const frontmatter = { rating: 4.5, count: 100 };
-			await noteCreator.createNote('Test', frontmatter, 'Test');
+			await noteCreator.createNote('Test', frontmatter, 'Test', 'template3.md');
 
 			const content = mockVault.getFileContent('Places/Test.md');
 			expect(content).toContain('rating: 4.5');
@@ -148,16 +171,28 @@ tags:
 		});
 
 		it('should handle boolean values correctly', async () => {
+			const templateContent = `---
+isClosed:
+---
+`;
+			await mockVault.create('template4.md', templateContent);
+
 			const frontmatter = { isClosed: false };
-			await noteCreator.createNote('Test', frontmatter, 'Test');
+			await noteCreator.createNote('Test', frontmatter, 'Test', 'template4.md');
 
 			const content = mockVault.getFileContent('Places/Test.md');
 			expect(content).toContain('isClosed: false');
 		});
 
 		it('should handle cuisine array as inline format', async () => {
+			const templateContent = `---
+cuisine:
+---
+`;
+			await mockVault.create('template5.md', templateContent);
+
 			const frontmatter = { cuisine: ['Italian', 'Pizza', 'Pasta'] };
-			await noteCreator.createNote('Test', frontmatter, 'Test');
+			await noteCreator.createNote('Test', frontmatter, 'Test', 'template5.md');
 
 			const content = mockVault.getFileContent('Places/Test.md');
 			expect(content).toContain('cuisine: [Italian, Pizza, Pasta]');
@@ -183,8 +218,14 @@ tags:
 		});
 
 		it('should handle empty arrays', async () => {
+			const templateContent = `---
+cuisine:
+---
+`;
+			await mockVault.create('template6.md', templateContent);
+
 			const frontmatter = { cuisine: [] };
-			await noteCreator.createNote('Test', frontmatter, 'Test');
+			await noteCreator.createNote('Test', frontmatter, 'Test', 'template6.md');
 
 			const content = mockVault.getFileContent('Places/Test.md');
 			// Empty array should still have the key
@@ -232,13 +273,15 @@ Some content`;
 			const templateContent = `---
 tags:
   - restaurant
----`;
+name:
+---
+`;
 			await mockVault.create('template.md', templateContent);
 			settings.templateFilePath = 'template.md';
 			noteCreator = new NoteCreator(mockApp as any, settings);
 
 			const frontmatter = { name: 'Test' };
-			await noteCreator.createNote('Test', frontmatter, 'Test');
+			await noteCreator.createNote('Test', frontmatter, 'Test', 'template.md');
 
 			const content = mockVault.getFileContent('Places/Test.md');
 			expect(content).toContain('name: Test');
@@ -251,6 +294,8 @@ tags:
 tags:
   - restaurant
 templateField: original
+name:
+newField:
 ---
 
 Body`;
@@ -271,13 +316,14 @@ Body`;
 			const templateContent = `---
 name: Template Name
 rating: 3.0
----`;
+---
+`;
 			await mockVault.create('template.md', templateContent);
 			settings.templateFilePath = 'template.md';
 			noteCreator = new NoteCreator(mockApp as any, settings);
 
 			const frontmatter = { name: 'Actual Name', rating: 4.5 };
-			await noteCreator.createNote('Test', frontmatter, 'Test');
+			await noteCreator.createNote('Test', frontmatter, 'Test', 'template.md');
 
 			const content = mockVault.getFileContent('Places/Test.md');
 			// Check that the new values are in the frontmatter (at the top)

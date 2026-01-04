@@ -4,6 +4,7 @@ import { GooglePlacesSettingTab } from './settings';
 import { PlaceSearchModal } from './modal';
 import { BatchUpdateModal } from './batchUpdateModal';
 import { PlaceSelectionModal } from './placeSelectionModal';
+import { TemplateSelectionModal } from './templateSelectionModal';
 import { GooglePlacesService } from './services/googlePlaces';
 import { DataMapper } from './services/dataMapper';
 import { NoteCreator } from './services/noteCreator';
@@ -102,6 +103,19 @@ export default class GooglePlacesPlugin extends Plugin {
 				this.registeredCommandIds.add(selectionCommandId);
 			}
 		});
+
+		// Search selection with template choice command (v1.6.0)
+		const selectionChooseTemplateCommandId = 'search-selection-google-places-choose-template';
+		if (!this.registeredCommandIds.has(selectionChooseTemplateCommandId)) {
+			this.addCommand({
+				id: selectionChooseTemplateCommandId,
+				name: 'Search selection - Choose Template',
+				editorCallback: (editor) => {
+					this.openTemplateSelectionForSearch(editor);
+				}
+			});
+			this.registeredCommandIds.add(selectionChooseTemplateCommandId);
+		}
 
 		// Batch update command
 		const batchCommandId = 'batch-update-places';
@@ -264,6 +278,16 @@ export default class GooglePlacesPlugin extends Plugin {
 			new Notice(`Error updating file: ${errorMessage}`);
 			console.error('Error updating current file:', error);
 		}
+	}
+
+	private openTemplateSelectionForSearch(editor: Editor): void {
+		new TemplateSelectionModal(
+			this.app,
+			this.settings.templates,
+			(selectedIndex) => {
+				void this.handleSelectionSearch(editor, selectedIndex);
+			}
+		).open();
 	}
 
 	private async handleSelectionSearch(editor: Editor, templateIndex: number): Promise<void> {

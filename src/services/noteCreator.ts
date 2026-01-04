@@ -27,8 +27,11 @@ export class NoteCreator {
 
 		const uniqueFilePath = this.getUniqueFilePath(filePath);
 
+		// Get template fields for filtering
+		const templateFields = await this.getTemplateFields(templatePath);
+
 		const templateContent = await this.loadTemplate(templatePath);
-		const noteContent = this.buildNoteContent(frontmatter, templateContent, placeName);
+		const noteContent = this.buildNoteContent(frontmatter, templateContent, placeName, templateFields);
 
 		const file = await this.app.vault.create(uniqueFilePath, noteContent);
 
@@ -86,15 +89,104 @@ export class NoteCreator {
 		}
 	}
 
-	private buildNoteContent(frontmatter: NoteFrontmatter, templateContent: string, placeName: string): string {
-		if (templateContent) {
+	/**
+	 * Extract field names from template frontmatter (case-insensitive)
+	 * @param templatePath Path to template file
+	 * @returns Set of lowercase field names found in template
+	 */
+	private async getTemplateFields(templatePath?: string): Promise<Set<string>> {
+		const fields = new Set<string>();
+
+		if (!templatePath) {
+			return fields;
+		}
+
+		try {
+			const templateContent = await this.loadTemplate(templatePath);
+			if (!templateContent) {
+				return fields;
+			}
+
+			const { frontmatter } = this.parseTemplate(templateContent);
+
+			// Add all template frontmatter keys (lowercase for case-insensitive matching)
+			for (const key of Object.keys(frontmatter)) {
+				fields.add(key.toLowerCase());
+			}
+
+			return fields;
+		} catch (error) {
+			console.error('Error extracting template fields:', error);
+			return fields;
+		}
+	}
+
+	/**
+	 * Filter frontmatter based on template fields
+	 * Essential fields (address, location, link, phone) are always included
+	 * Optional fields only included if present in template
+	 * @param frontmatter Complete frontmatter from dataMapper
+	 * @param templateFields Set of fields from template (lowercase)
+	 * @param hasTemplate Whether a template is being used
+	 */
+	private filterFrontmatterByTemplate(
+		frontmatter: NoteFrontmatter,
+		templateFields: Set<string>,
+		hasTemplate: boolean
+	): NoteFrontmatter {
+		// Essential fields that are always included
+		const essentialFields = ['address', 'location', 'link', 'phone'];
+
+		// If no template, only return essential fields
+		if (!hasTemplate) {
+			const filtered: NoteFrontmatter = {};
+			for (const field of essentialFields) {
+				const key = field as keyof NoteFrontmatter;
+				if (frontmatter[key] !== undefined) {
+					filtered[key] = frontmatter[key];
+				}
+			}
+			return filtered;
+		}
+
+		// If template exists, include essential fields + fields in template
+		const filtered: NoteFrontmatter = {};
+
+		for (const [key, value] of Object.entries(frontmatter)) {
+			const lowerKey = key.toLowerCase();
+
+			// Include if essential OR in template
+			if (essentialFields.includes(lowerKey) || templateFields.has(lowerKey)) {
+				filtered[key] = value;
+			}
+		}
+
+		return filtered;
+	}
+
+	private buildNoteContent(
+		frontmatter: NoteFrontmatter,
+		templateContent: string,
+		placeName: string,
+		templateFields: Set<string>
+	): string {
+		const hasTemplate = templateContent.length > 0;
+
+		// Filter frontmatter based on template
+		const filteredFrontmatter = this.filterFrontmatterByTemplate(
+			frontmatter,
+			templateFields,
+			hasTemplate
+		);
+
+		if (hasTemplate) {
 			const { frontmatter: templateFrontmatter, body: templateBody } = this.parseTemplate(templateContent);
-			const mergedFrontmatter = { ...templateFrontmatter, ...frontmatter };
+			const mergedFrontmatter = { ...templateFrontmatter, ...filteredFrontmatter };
 			const frontmatterStr = this.formatFrontmatter(mergedFrontmatter);
 			return `${frontmatterStr}\n${templateBody}`;
 		}
 
-		const frontmatterStr = this.formatFrontmatter(frontmatter);
+		const frontmatterStr = this.formatFrontmatter(filteredFrontmatter);
 		return `${frontmatterStr}\n# ${placeName}\n\n`;
 	}
 

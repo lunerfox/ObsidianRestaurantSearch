@@ -115,7 +115,7 @@ describe('DataMapper', () => {
 			expect(result.cuisine).not.toContain('establishment');
 		});
 
-		it('should return "Restaurant" as default when no cuisine types match', () => {
+		it('should not include cuisine when no cuisine types match', () => {
 			const placeWithNoCuisine: GooglePlaceDetailsResponse = {
 				...MOCK_PLACE_DETAILS_MINIMAL,
 				types: ['point_of_interest', 'establishment']
@@ -123,7 +123,8 @@ describe('DataMapper', () => {
 
 			const result = dataMapper.mapPlaceDetailsToFrontmatter(placeWithNoCuisine);
 
-			expect(result.cuisine).toEqual(['Restaurant']);
+			// Cuisine should not be included when there are no food-related types
+			expect(result.cuisine).toBeUndefined();
 		});
 
 		it('should handle empty types array', () => {

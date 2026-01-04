@@ -102,6 +102,38 @@ This plugin requires the following Google Places API (New) permissions:
   - Default: `{name}`
   - Example: `{city} - {name}` generates "Los Angeles - Joe's Pizza.md"
 
+## Available Frontmatter Fields
+
+The plugin can populate the following frontmatter fields in your notes:
+
+### Essential Fields (Always Included)
+
+These fields are always populated regardless of template:
+- **address** - Full formatted address from Google Places
+- **location** - Array with latitude and longitude: `[lat, lng]`
+- **link** - Google Maps link to the place
+- **phone** - Phone number (if available)
+
+### Optional Fields (Template-Based)
+
+These fields are only included if they exist in your template:
+- **cuisine** - Array of food types (only for restaurants, cafes, bars, etc.)
+- **city** - Extracted from address components
+- **rating-google** - Google's 1-5 star rating
+- **image** - Photo URL or local path (based on settings)
+- **isClosed** - True if place is permanently closed
+- **aliases** - Added when using search selection feature
+
+### Field Matching
+
+- Field names are matched case-insensitively
+- Nested fields in templates are recognized (e.g., `location: {lat: 0, lng: 0}`)
+- Essential fields are silently added even if not in template
+
+### No Template Mode
+
+When using "No Template" option, only essential fields are included.
+
 ## Usage
 
 1. Open Command Palette (`Cmd/Ctrl + P`)

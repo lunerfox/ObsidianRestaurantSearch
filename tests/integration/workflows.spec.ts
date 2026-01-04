@@ -105,19 +105,21 @@ describe('Integration Tests - End-to-End Workflows', () => {
 			expect(file).toBeDefined();
 			expect(file.path).toBe('Places/Pizza Hut - Los Angeles.md');
 
-			// 6. Verify file content
+			// 6. Verify file content (No template mode = only essential fields)
 			const content = mockVault.getFileContent(file.path);
 			expect(content).toContain('---');
 			expect(content).toContain('address: 123 Main St, Los Angeles, CA 90001');
-			expect(content).toContain('rating-google: 4.5');
-			expect(content).toContain('city: Los Angeles');
-			expect(content).toContain('cuisine:');
-			expect(content).toContain('Italian');
-			expect(content).toContain('Pizza');
 			expect(content).toContain('location:');
 			expect(content).toContain('  - 34.0522');
 			expect(content).toContain('  - -118.2437');
+			expect(content).toContain('link: https://www.google.com/maps/place/?q=place_id:place-123');
+			expect(content).toContain('phone: +1 555-0123');
 			expect(content).toContain('# Pizza Hut');
+
+			// These fields should NOT be included in No Template mode
+			expect(content).not.toContain('rating-google');
+			expect(content).not.toContain('city');
+			expect(content).not.toContain('cuisine');
 
 			// Verify APIs were called correctly
 			expect(mockSearch).toHaveBeenCalledWith('Pizza Hut Los Angeles');
@@ -164,10 +166,12 @@ describe('Integration Tests - End-to-End Workflows', () => {
 			const filename = dataMapper.formatFilename('{name}', details.displayName.text, '');
 			const file = await noteCreator.createNote(filename, frontmatter, details.displayName.text);
 
-			// Verify correct place was used
+			// Verify correct place was used (No template mode = only essential fields)
 			const content = mockVault.getFileContent(file.path);
 			expect(content).toContain('address: 456 Oak Ave, Los Angeles, CA');
-			expect(content).toContain('rating-google: 4.8');
+			expect(content).toContain('link: https://www.google.com/maps/place/?q=place_id:place-2');
+			// rating-google should NOT be included in No Template mode
+			expect(content).not.toContain('rating-google');
 		});
 
 		it('should create note with custom filename pattern', async () => {
@@ -434,12 +438,15 @@ address: Nonexistent Place XYZ123
 
 	describe('Template Merging Flow', () => {
 		it('should merge template frontmatter with place data', async () => {
-			// Create template
+			// Create template with fields that should be populated
 			const templateContent = `---
 tags:
   - restaurant
   - places
 custom_field: template value
+rating-google:
+city:
+cuisine:
 ---
 
 # {{name}}
@@ -515,7 +522,7 @@ tags:
 
 			const details = await googlePlacesService.getPlaceDetails('place-123');
 			const frontmatter = dataMapper.mapPlaceDetailsToFrontmatter(details);
-			const file = await noteCreator.createNote('test', frontmatter, 'Actual Restaurant Name');
+			const file = await noteCreator.createNote('test', frontmatter, 'Actual Restaurant Name', 'template.md');
 
 			const content = mockVault.getFileContent(file.path);
 
