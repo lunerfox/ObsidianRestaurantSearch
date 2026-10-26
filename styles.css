@@ -1,5 +1,28 @@
 /* Styles for Google Places Search Plugin */
 
+/* Layout helpers (extracted from inline element.style assignments so the
+   plugin stays theme-friendly — see obsidianmd/no-static-styles-assignment) */
+.gp-section {
+    margin-bottom: 1em;
+}
+
+.gp-results {
+    clear: both;
+    padding-top: 1em;
+}
+
+.gp-input-narrow {
+    width: 200px;
+}
+
+.gp-input-wide {
+    width: 400px;
+}
+
+.gp-hidden {
+    display: none;
+}
+
 /* Settings warning */
 .google-places-api-warning {
     margin: 15px 0;

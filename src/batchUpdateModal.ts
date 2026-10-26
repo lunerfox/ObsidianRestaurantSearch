@@ -1,6 +1,6 @@
 import { App, Modal, Notice, Setting, TFile, requestUrl } from 'obsidian';
 import { GooglePlacesPluginSettings, PlaceSearchResult } from './types';
-import { BatchUpdateService, FileToProcess } from './services/batchUpdateService';
+import { BatchUpdateService } from './services/batchUpdateService';
 import { GooglePlacesService } from './services/googlePlaces';
 import { DataMapper } from './services/dataMapper';
 import { PlaceSelectionModal } from './placeSelectionModal';
@@ -47,7 +47,7 @@ export class BatchUpdateModal extends Modal {
 		// Search query input
 		new Setting(contentEl)
 			.setName('Search query')
-			.setDesc('Enter folder path to filter files (e.g., "Restaurants/" or leave empty for all files)')
+			.setDesc('Enter folder path to filter files (e.g., "restaurants/" or leave empty for all files)')
 			.addText(text => {
 				this.searchInput = text.inputEl;
 				text.setPlaceholder('Restaurants/');
@@ -73,14 +73,14 @@ export class BatchUpdateModal extends Modal {
 			text: 'Cancel',
 			cls: 'mod-warning'
 		});
-		this.cancelButton.style.display = 'none';
+		this.cancelButton.addClass('gp-hidden');
 		this.cancelButton.addEventListener('click', () => {
 			this.cancelBatchUpdate();
 		});
 
 		// Progress container
 		this.progressContainer = contentEl.createDiv({ cls: 'batch-update-progress' });
-		this.progressContainer.style.display = 'none';
+		this.progressContainer.addClass('gp-hidden');
 
 		// Results container
 		this.resultsContainer = contentEl.createDiv({ cls: 'batch-update-results' });
@@ -114,6 +114,8 @@ export class BatchUpdateModal extends Modal {
 				new Notice('Invalid API key. Please check your settings.');
 				return false;
 			} else if (response.status === 400) {
+				// "Google Places" / "Google Cloud Console" are product names — intentional capitalization.
+				// eslint-disable-next-line obsidianmd/ui/sentence-case
 				new Notice('API key may be valid but Google Places API is not enabled. Check your Google Cloud Console.');
 				return false;
 			} else {
@@ -197,13 +199,13 @@ export class BatchUpdateModal extends Modal {
 
 	private updateUIForProcessing(processing: boolean) {
 		if (this.startButton) {
-			this.startButton.style.display = processing ? 'none' : 'inline-block';
+			this.startButton.toggleClass('gp-hidden', processing);
 		}
 		if (this.cancelButton) {
-			this.cancelButton.style.display = processing ? 'inline-block' : 'none';
+			this.cancelButton.toggleClass('gp-hidden', !processing);
 		}
 		if (this.progressContainer) {
-			this.progressContainer.style.display = processing ? 'block' : 'none';
+			this.progressContainer.toggleClass('gp-hidden', !processing);
 		}
 		if (this.searchInput) {
 			this.searchInput.disabled = processing;
@@ -227,7 +229,8 @@ export class BatchUpdateModal extends Modal {
 		const progressBarContainer = this.progressContainer.createDiv({ cls: 'batch-update-progress-bar' });
 		const progressBar = progressBarContainer.createDiv({ cls: 'batch-update-progress-fill' });
 		const percentage = (current / total) * 100;
-		progressBar.style.width = `${percentage}%`;
+		// Dynamic value → setCssProps (see obsidianmd/no-static-styles-assignment)
+		progressBar.setCssProps({ width: `${percentage}%` });
 	}
 
 	private async promptForPlaceSelection(
@@ -257,7 +260,7 @@ export class BatchUpdateModal extends Modal {
 		if (!this.resultsContainer) return;
 
 		this.resultsContainer.empty();
-		this.resultsContainer.createEl('h3', { text: 'Batch Update Results' });
+		this.resultsContainer.createEl('h3', { text: 'Batch update results' });
 
 		const summaryContainer = this.resultsContainer.createDiv({ cls: 'batch-update-summary' });
 
@@ -280,7 +283,7 @@ export class BatchUpdateModal extends Modal {
 
 		// Show error details if any
 		if (result.errorDetails.length > 0) {
-			this.resultsContainer.createEl('h4', { text: 'Error Details' });
+			this.resultsContainer.createEl('h4', { text: 'Error details' });
 			const errorList = this.resultsContainer.createEl('ul', { cls: 'batch-update-error-list' });
 
 			for (const error of result.errorDetails) {

@@ -20,7 +20,7 @@ export class TemplateSelectionModal extends Modal {
 		const { contentEl } = this;
 		contentEl.empty();
 
-		contentEl.createEl('h2', { text: 'Select Template' });
+		contentEl.createEl('h2', { text: 'Select template' });
 
 		// Create a container for the template list
 		const listContainer = contentEl.createDiv({ cls: 'template-selection-list' });

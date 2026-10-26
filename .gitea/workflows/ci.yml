@@ -1,0 +1,30 @@
+# .gitea/workflows/ci.yml
+# Install + lint + test + build on every push and pull request. Runs on a
+# self-hosted runner labelled [self-hosted, nas]; adjust runs-on to match your
+# own runner.
+#
+# The Vitest suite (unit + integration) is fully mocked — integration tests spy
+# on obsidian.requestUrl, so CI needs no live Google Places API key.
+name: ci
+
+on:
+    push:
+    pull_request:
+
+jobs:
+    lint-test-build:
+        runs-on: [self-hosted, nas]
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Install dependencies
+              run: npm install
+
+            - name: Lint (eslint-plugin-obsidianmd)
+              run: npm run lint
+
+            - name: Test (Vitest, mocked — no live API key)
+              run: npm run test:ci
+
+            - name: Build
+              run: npm run build

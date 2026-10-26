@@ -110,7 +110,7 @@ export class BatchUpdateService {
 	/**
 	 * Parse frontmatter from file content
 	 */
-	private parseFrontmatter(content: string): NoteFrontmatter {
+	parseFrontmatter(content: string): NoteFrontmatter {
 		const frontmatterRegex = /^---\n([\s\S]*?)\n---/;
 		const match = content.match(frontmatterRegex);
 
@@ -255,7 +255,9 @@ export class BatchUpdateService {
 				}
 			} else if (typeof value === 'object') {
 				lines.push(`${key}: ${JSON.stringify(value)}`);
-			} else {
+			} else if (typeof value === 'string') {
+				lines.push(`${key}: ${value}`);
+			} else if (typeof value === 'number' || typeof value === 'boolean') {
 				lines.push(`${key}: ${value}`);
 			}
 		}
@@ -289,7 +291,9 @@ export class BatchUpdateService {
 	 * Sleep for specified milliseconds (for rate limiting)
 	 */
 	private sleep(ms: number): Promise<void> {
-		return new Promise(resolve => setTimeout(resolve, ms));
+		// window.setTimeout (not bare setTimeout) for Obsidian popout-window
+		// compatibility — see obsidianmd/prefer-window-timers.
+		return new Promise(resolve => window.setTimeout(resolve, ms));
 	}
 
 	/**

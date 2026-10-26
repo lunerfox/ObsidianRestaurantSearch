@@ -1,16 +1,18 @@
-# Logs
+# build output (built on deploy, attached to releases, not committed — D5)
+main.js
+main.js.map
+*.js.map
+dist/
+
+# dependencies
+node_modules/
+
+# logs
 logs
 *.log
 npm-debug.log*
 
-# Dependencies
-node_modules/
-
-# Build
-dist/
-*.js.map
-
-# IDE
+# IDE / editor
 .vscode/
 .idea/
 .claude/
@@ -19,12 +21,13 @@ dist/
 .DS_Store
 Thumbs.db
 
-# Testing
+# testing
 coverage/
 
-# Environment
+# secrets / runtime — never commit
 .env
 .env.local
+data.json
 
-# Personal dev tools
-copy-to-dev.bat
+# maintainer-local instructions — NAS paths, internal URLs, deploy ritual (§2a)
+CLAUDE.local.md

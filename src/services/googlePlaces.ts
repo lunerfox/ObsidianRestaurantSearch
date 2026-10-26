@@ -11,6 +11,8 @@ export class GooglePlacesService {
 
 	async searchPlaces(query: string): Promise<PlaceSearchResult[]> {
 		if (!this.apiKey) {
+			// "Google Places" is the product name — intentional capitalization.
+			// eslint-disable-next-line obsidianmd/ui/sentence-case
 			new Notice('Configure your Google Places API key in plugin settings');
 			throw new Error('API key not configured');
 		}
@@ -41,7 +43,7 @@ export class GooglePlacesService {
 				throw new Error(`API request failed: ${response.status}`);
 			}
 
-			const data: GooglePlacesSearchResponse = response.json;
+			const data = response.json as GooglePlacesSearchResponse;
 
 			if (!data.places || data.places.length === 0) {
 				new Notice('No results found for your search');
@@ -67,6 +69,8 @@ export class GooglePlacesService {
 
 	async getPlaceDetails(placeId: string): Promise<GooglePlaceDetailsResponse> {
 		if (!this.apiKey) {
+			// "Google Places" is the product name — intentional capitalization.
+			// eslint-disable-next-line obsidianmd/ui/sentence-case
 			new Notice('Configure your Google Places API key in plugin settings');
 			throw new Error('API key not configured');
 		}
@@ -94,7 +98,7 @@ export class GooglePlacesService {
 				throw new Error(`API request failed: ${response.status}`);
 			}
 
-			const data: GooglePlaceDetailsResponse = response.json;
+			const data = response.json as GooglePlaceDetailsResponse;
 			return data;
 
 		} catch (error) {

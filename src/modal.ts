@@ -53,11 +53,12 @@ export class PlaceSearchModal extends Modal {
 		const { contentEl } = this;
 		contentEl.empty();
 
+		// "Google Places" is the product name — intentional capitalization.
+		// eslint-disable-next-line obsidianmd/ui/sentence-case
 		contentEl.createEl('h2', { text: 'Search Google Places' });
 
 		// Template selection dropdown
-		const templateContainer = contentEl.createDiv({ cls: 'template-container' });
-		templateContainer.style.marginBottom = '1em';
+		const templateContainer = contentEl.createDiv({ cls: 'template-container gp-section' });
 
 		new Setting(templateContainer)
 			.setName('Template')
@@ -77,11 +78,12 @@ export class PlaceSearchModal extends Modal {
 				});
 			});
 
-		const searchContainer = contentEl.createDiv({ cls: 'search-container' });
-		searchContainer.style.marginBottom = '1em';
+		const searchContainer = contentEl.createDiv({ cls: 'search-container gp-section' });
 
 		new Setting(searchContainer)
 			.setName('Search query')
+			// Example search query showing a real place-name format — not a sentence.
+			// eslint-disable-next-line obsidianmd/ui/sentence-case
 			.setDesc('Enter place name and location (e.g., "Joe\'s Pizza NYC")')
 			.addText(text => {
 				text.setPlaceholder('Enter search query...');
@@ -105,11 +107,13 @@ export class PlaceSearchModal extends Modal {
 			.addButton(button => {
 				this.searchButtonEl = button.buttonEl;
 
-				// Create and store handler for cleanup
-				this.clickHandler = async () => {
+				// Create and store handler for cleanup. Kept synchronous (the search
+				// is fired with `void`) so it satisfies the void-return callback
+				// signature — see @typescript-eslint/no-misused-promises.
+				this.clickHandler = () => {
 					const searchInput = searchContainer.querySelector('input');
 					if (searchInput) {
-						await this.performSearch(searchInput.value);
+						void this.performSearch(searchInput.value);
 					}
 				};
 
@@ -119,9 +123,7 @@ export class PlaceSearchModal extends Modal {
 					.onClick(this.clickHandler);
 			});
 
-		const resultsContainer = contentEl.createDiv({ cls: 'results-container' });
-		resultsContainer.style.clear = 'both';
-		resultsContainer.style.paddingTop = '1em';
+		contentEl.createDiv({ cls: 'results-container gp-results' });
 	}
 
 	async performSearch(query: string) {

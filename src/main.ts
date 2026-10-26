@@ -1,4 +1,4 @@
-import { Plugin, Editor, Notice, TFile } from 'obsidian';
+import { Plugin, Editor, Notice } from 'obsidian';
 import { GooglePlacesPluginSettings, DEFAULT_SETTINGS, PlaceSearchResult } from './types';
 import { GooglePlacesSettingTab } from './settings';
 import { PlaceSearchModal } from './modal';
@@ -41,6 +41,8 @@ export default class GooglePlacesPlugin extends Plugin {
 		if (!this.registeredCommandIds.has(baseCommandId)) {
 			this.addCommand({
 				id: baseCommandId,
+				// "Google Places" is the product name — intentional capitalization.
+				// eslint-disable-next-line obsidianmd/ui/sentence-case
 				name: 'Search Google Places',
 				callback: () => {
 					this.openSearchModal(false);
@@ -109,7 +111,7 @@ export default class GooglePlacesPlugin extends Plugin {
 		if (!this.registeredCommandIds.has(selectionChooseTemplateCommandId)) {
 			this.addCommand({
 				id: selectionChooseTemplateCommandId,
-				name: 'Search selection - Choose Template',
+				name: 'Search selection - choose template',
 				editorCallback: (editor) => {
 					this.openTemplateSelectionForSearch(editor);
 				}
@@ -194,7 +196,7 @@ export default class GooglePlacesPlugin extends Plugin {
 
 		// Check if it's a markdown file
 		if (activeFile.extension !== 'md') {
-			new Notice('Active file is not a markdown file');
+			new Notice('Active file is not a Markdown file');
 			return;
 		}
 
@@ -209,7 +211,7 @@ export default class GooglePlacesPlugin extends Plugin {
 				this.googlePlacesService,
 				this.dataMapper
 			);
-			const frontmatter = (batchUpdateService as any).parseFrontmatter(content);
+			const frontmatter = batchUpdateService.parseFrontmatter(content);
 
 			// Determine search query: try address first, fallback to filename
 			let searchQuery = '';
@@ -430,7 +432,7 @@ export default class GooglePlacesPlugin extends Plugin {
 	}
 
 	async loadSettings() {
-		const loadedData = await this.loadData();
+		const loadedData = await this.loadData() as Partial<GooglePlacesPluginSettings> | null;
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, loadedData);
 
 		// Migration: Convert old templateFilePath to new templates array

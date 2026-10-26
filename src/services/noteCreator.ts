@@ -84,7 +84,7 @@ export class NoteCreator {
 				return '';
 			}
 		} catch (error) {
-			new Notice(`Error loading template: ${error.message}`);
+			new Notice(`Error loading template: ${error instanceof Error ? error.message : 'Unknown error'}`);
 			return '';
 		}
 	}
@@ -219,10 +219,16 @@ export class NoteCreator {
 			else if (!Array.isArray(value)) {
 				// Convert value to string, handling objects with JSON.stringify
 				let stringValue: string;
-				if (typeof value === 'object' && value !== null) {
+				if (typeof value === 'object') {
+					// value !== null is guaranteed (null is skipped above)
 					stringValue = JSON.stringify(value);
+				} else if (typeof value === 'string') {
+					stringValue = value;
+				} else if (typeof value === 'number' || typeof value === 'boolean') {
+					stringValue = `${value}`;
 				} else {
-					stringValue = String(value);
+					// bigint / symbol / function — not valid frontmatter, skip
+					continue;
 				}
 				lines.push(`${key}: ${stringValue}`);
 			}
@@ -324,7 +330,7 @@ export class NoteCreator {
 			// Return the wiki-link format for Obsidian
 			return uniqueImagePath;
 		} catch (error) {
-			new Notice(`Failed to download image: ${error.message}`);
+			new Notice(`Failed to download image: ${error instanceof Error ? error.message : 'Unknown error'}`);
 			return null;
 		}
 	}

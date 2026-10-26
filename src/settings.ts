@@ -1,7 +1,5 @@
 import { App, PluginSettingTab, Setting, TFile, TFolder, TAbstractFile, Notice, requestUrl } from 'obsidian';
 import GooglePlacesPlugin from './main';
-// @ts-ignore
-import manifest from '../manifest.json';
 
 export class GooglePlacesSettingTab extends PluginSettingTab {
 	plugin: GooglePlacesPlugin;
@@ -16,10 +14,12 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 
+		// "Google Places" is the product name — intentional capitalization.
+		// eslint-disable-next-line obsidianmd/ui/sentence-case
 		new Setting(containerEl).setName('Google Places plugin').setHeading();
 
 		containerEl.createEl('p', {
-			text: `Version ${manifest.version}`,
+			text: `Version ${this.plugin.manifest.version}`,
 			cls: 'setting-item-description'
 		});
 
@@ -28,7 +28,10 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 		this.updateWarningVisibility();
 
 		new Setting(containerEl)
+			// "Google Places" / "Google Cloud Console" are product names — intentional capitalization.
+			// eslint-disable-next-line obsidianmd/ui/sentence-case
 			.setName('Google Places API key')
+			// eslint-disable-next-line obsidianmd/ui/sentence-case
 			.setDesc('Enter your Google Places API key from Google Cloud Console')
 			.addText(text => text
 				.setPlaceholder('Enter your API key')
@@ -73,7 +76,7 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 							templateSetting.setName(`Template: ${value}`);
 							await this.plugin.saveSettings();
 						});
-					text.inputEl.style.width = '200px';
+					text.inputEl.addClass('gp-input-narrow');
 				})
 				.addButton(button => button
 					.setButtonText('Remove')
@@ -97,7 +100,7 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 							this.plugin.settings.templates[index].path = value;
 							await this.plugin.saveSettings();
 						});
-					text.inputEl.style.width = '400px';
+					text.inputEl.addClass('gp-input-wide');
 				});
 
 			// Target folder (optional)
@@ -114,7 +117,7 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 							this.plugin.settings.templates[index].targetFolder = value || undefined;
 							await this.plugin.saveSettings();
 						});
-					text.inputEl.style.width = '400px';
+					text.inputEl.addClass('gp-input-wide');
 				});
 
 			// Add spacing between templates
@@ -145,7 +148,7 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName('Target folder')
-			.setDesc('Folder where new notes will be created (e.g., Restaurants/)')
+			.setDesc('Folder where new notes will be created (e.g., restaurants/)')
 			.addText(text => {
 				new FolderSuggest(this.app, text.inputEl);
 				text
@@ -185,6 +188,8 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 			.addText(text => {
 				new FolderSuggest(this.app, text.inputEl);
 				text
+					// Placeholder mirrors the default folder value (DEFAULT_SETTINGS.imageFolder).
+					// eslint-disable-next-line obsidianmd/ui/sentence-case
 					.setPlaceholder('attachments/places')
 					.setValue(this.plugin.settings.imageFolder)
 					.onChange(async (value) => {
@@ -194,10 +199,13 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 			});
 
 		// Restaurant settings section
-		new Setting(containerEl).setName('Restaurant settings').setHeading();
+		new Setting(containerEl).setName('Restaurants').setHeading();
 
 		new Setting(containerEl)
 			.setName('Cuisine mappings')
+			// "Google Place types" is Google's place-type taxonomy and "google_type" is the
+			// literal lowercase key format — intentional capitalization.
+			// eslint-disable-next-line obsidianmd/ui/sentence-case
 			.setDesc('Map Google Place types to cuisine labels. Format: one mapping per line as "google_type: Label"')
 			.addTextArea(text => {
 				const mappings = this.plugin.settings.restaurants.cuisineMappings;
@@ -206,6 +214,8 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 					.join('\n');
 
 				text
+					// Placeholder shows the literal mapping format (lowercase google_type keys).
+					// eslint-disable-next-line obsidianmd/ui/sentence-case
 					.setPlaceholder('restaurant: Restaurant\nitalian_restaurant: Italian')
 					.setValue(mappingsText)
 					.onChange(async (value) => {
@@ -241,6 +251,8 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 			.setName('Address field name')
 			.setDesc('Frontmatter field to read address from (default: address)')
 			.addText(text => text
+				// Placeholder mirrors the default field name (DEFAULT_SETTINGS.batchUpdateAddressField).
+				// eslint-disable-next-line obsidianmd/ui/sentence-case
 				.setPlaceholder('address')
 				.setValue(this.plugin.settings.batchUpdateAddressField)
 				.onChange(async (value) => {
@@ -290,6 +302,8 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 
 		if (!this.plugin.settings.downloadImages) {
 			this.warningEl.createEl('div', {
+				// "Google" is a product name and "URLs" is an acronym — intentional capitalization.
+				// eslint-disable-next-line obsidianmd/ui/sentence-case
 				text: '⚠️ Warning: With image downloads disabled, your Google API key will be included in image URLs within your notes. This could expose your API key if you share these notes.',
 				cls: 'setting-item-description mod-warning'
 			});
@@ -329,34 +343,38 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 
 			if (response.status === 200) {
 				new Notice('API key is valid and working');
-				buttonEl.textContent = '✓ Valid';
-				setTimeout(() => {
+				buttonEl.textContent = '✓ valid';
+				window.setTimeout(() => {
 					buttonEl.textContent = originalText;
 				}, 3000);
 			} else if (response.status === 403) {
+				// "Google Cloud Console" is a product name — intentional capitalization.
+				// eslint-disable-next-line obsidianmd/ui/sentence-case
 				new Notice('Invalid API key, check your key in Google Cloud Console');
-				buttonEl.textContent = '✗ Invalid';
-				setTimeout(() => {
+				buttonEl.textContent = '✗ invalid';
+				window.setTimeout(() => {
 					buttonEl.textContent = originalText;
 				}, 3000);
 			} else if (response.status === 400) {
-				// API key might be valid but missing required APIs
+				// API key might be valid but missing required APIs.
+				// "Google Places" / "Google Cloud Console" are product names — intentional capitalization.
+				// eslint-disable-next-line obsidianmd/ui/sentence-case
 				new Notice('API key may be valid but Google Places API is not enabled, check your Google Cloud Console');
-				buttonEl.textContent = '⚠ Check Console';
-				setTimeout(() => {
+				buttonEl.textContent = '⚠ Check console';
+				window.setTimeout(() => {
 					buttonEl.textContent = originalText;
 				}, 3000);
 			} else {
 				new Notice(`Validation failed with status ${response.status}`);
-				buttonEl.textContent = '✗ Failed';
-				setTimeout(() => {
+				buttonEl.textContent = '✗ failed';
+				window.setTimeout(() => {
 					buttonEl.textContent = originalText;
 				}, 3000);
 			}
 		} catch {
 			new Notice('Network error while validating API key, check your connection');
-			buttonEl.textContent = '✗ Error';
-			setTimeout(() => {
+			buttonEl.textContent = '✗ error';
+			window.setTimeout(() => {
 				buttonEl.textContent = originalText;
 			}, 3000);
 		} finally {
@@ -377,12 +395,12 @@ abstract class InputSuggest<T> {
 		this.app = app;
 		this.inputEl = inputEl;
 
-		this.inputEl.addEventListener('input', this.onInputChanged.bind(this));
-		this.inputEl.addEventListener('focus', this.onInputChanged.bind(this));
+		this.inputEl.addEventListener('input', () => this.onInputChanged());
+		this.inputEl.addEventListener('focus', () => this.onInputChanged());
 		this.inputEl.addEventListener('blur', () => {
-			setTimeout(() => this.close(), 200);
+			window.setTimeout(() => this.close(), 200);
 		});
-		this.inputEl.addEventListener('keydown', this.onKeyDown.bind(this));
+		this.inputEl.addEventListener('keydown', (event) => this.onKeyDown(event));
 	}
 
 	protected abstract getSuggestions(query: string): T[];
@@ -433,7 +451,7 @@ abstract class InputSuggest<T> {
 			left: `${rect.left}px`,
 			width: `${rect.width}px`
 		});
-		document.body.appendChild(this.suggestEl);
+		activeDocument.body.appendChild(this.suggestEl);
 
 		this.renderSuggestions();
 	}

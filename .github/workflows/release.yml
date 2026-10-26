@@ -1,0 +1,59 @@
+# .github/workflows/release.yml
+# Runs on the PUBLIC GitHub repo (github.com/lunerfox/ObsidianRestaurantSearch).
+# Builds on tag push and opens a DRAFT release with the required assets attached.
+# Review the draft, then publish it. Tag must equal manifest.json "version" (no v prefix).
+#
+# Gitea ignores this file: it runs .gitea/workflows/ when that directory exists.
+name: Release Obsidian plugin
+
+on:
+    push:
+        tags:
+            - '*'
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+            id-token: write
+            attestations: write
+        steps:
+            - uses: actions/checkout@v6
+
+            - name: Use Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 24
+
+            # `npm run build` runs the mocked Vitest suite and typecheck before
+            # bundling, so a broken tree never produces release assets.
+            - name: Build plugin
+              run: |
+                  npm install
+                  npm run build
+
+            - name: Check tag matches manifest version
+              run: |
+                  tag="${GITHUB_REF#refs/tags/}"
+                  version="$(node -p "require('./manifest.json').version")"
+                  [ "$tag" = "$version" ] || { echo "tag $tag != manifest version $version"; exit 1; }
+
+            # esbuild writes main.js, manifest.json and styles.css into dist/.
+            - name: Attest build provenance
+              uses: actions/attest@v4
+              with:
+                  subject-path: |
+                      dist/main.js
+                      dist/styles.css
+
+            - name: Create release
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  tag="${GITHUB_REF#refs/tags/}"
+
+                  gh release create "$tag" \
+                    --title="$tag" \
+                    --draft \
+                    dist/main.js dist/manifest.json dist/styles.css
