@@ -11,9 +11,7 @@ export class GooglePlacesService {
 
 	async searchPlaces(query: string): Promise<PlaceSearchResult[]> {
 		if (!this.apiKey) {
-			// "Google Places" is the product name — intentional capitalization.
-			// eslint-disable-next-line obsidianmd/ui/sentence-case
-			new Notice('Configure your Google Places API key in plugin settings');
+			new Notice("Configure your API key for Google's places service in the plugin settings");
 			throw new Error('API key not configured');
 		}
 
@@ -69,9 +67,7 @@ export class GooglePlacesService {
 
 	async getPlaceDetails(placeId: string): Promise<GooglePlaceDetailsResponse> {
 		if (!this.apiKey) {
-			// "Google Places" is the product name — intentional capitalization.
-			// eslint-disable-next-line obsidianmd/ui/sentence-case
-			new Notice('Configure your Google Places API key in plugin settings');
+			new Notice("Configure your API key for Google's places service in the plugin settings");
 			throw new Error('API key not configured');
 		}
 

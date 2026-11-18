@@ -23,6 +23,10 @@
     display: none;
 }
 
+.gp-suggestion-positioned {
+    position: absolute;
+}
+
 /* Settings warning */
 .google-places-api-warning {
     margin: 15px 0;

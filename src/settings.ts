@@ -14,9 +14,7 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 
-		// "Google Places" is the product name — intentional capitalization.
-		// eslint-disable-next-line obsidianmd/ui/sentence-case
-		new Setting(containerEl).setName('Google Places plugin').setHeading();
+		new Setting(containerEl).setName('Places search').setHeading();
 
 		containerEl.createEl('p', {
 			text: `Version ${this.plugin.manifest.version}`,
@@ -28,11 +26,8 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 		this.updateWarningVisibility();
 
 		new Setting(containerEl)
-			// "Google Places" / "Google Cloud Console" are product names — intentional capitalization.
-			// eslint-disable-next-line obsidianmd/ui/sentence-case
-			.setName('Google Places API key')
-			// eslint-disable-next-line obsidianmd/ui/sentence-case
-			.setDesc('Enter your Google Places API key from Google Cloud Console')
+			.setName('API key')
+			.setDesc("Enter the API key for Google's places service, available from Google's cloud console")
 			.addText(text => text
 				.setPlaceholder('Enter your API key')
 				.setValue(this.plugin.settings.apiKey)
@@ -121,7 +116,7 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 				});
 
 			// Add spacing between templates
-			containerEl.createEl('div', { cls: 'setting-item-separator' });
+			containerEl.createDiv({ cls: 'setting-item-separator' });
 		});
 
 		// Add template button
@@ -188,8 +183,6 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 			.addText(text => {
 				new FolderSuggest(this.app, text.inputEl);
 				text
-					// Placeholder mirrors the default folder value (DEFAULT_SETTINGS.imageFolder).
-					// eslint-disable-next-line obsidianmd/ui/sentence-case
 					.setPlaceholder('attachments/places')
 					.setValue(this.plugin.settings.imageFolder)
 					.onChange(async (value) => {
@@ -203,10 +196,7 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName('Cuisine mappings')
-			// "Google Place types" is Google's place-type taxonomy and "google_type" is the
-			// literal lowercase key format — intentional capitalization.
-			// eslint-disable-next-line obsidianmd/ui/sentence-case
-			.setDesc('Map Google Place types to cuisine labels. Format: one mapping per line as "google_type: Label"')
+			.setDesc('Map Google place types to cuisine labels. Format: one mapping per line, such as `google_type: Label`')
 			.addTextArea(text => {
 				const mappings = this.plugin.settings.restaurants.cuisineMappings;
 				const mappingsText = Object.entries(mappings)
@@ -214,9 +204,7 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 					.join('\n');
 
 				text
-					// Placeholder shows the literal mapping format (lowercase google_type keys).
-					// eslint-disable-next-line obsidianmd/ui/sentence-case
-					.setPlaceholder('restaurant: Restaurant\nitalian_restaurant: Italian')
+					.setPlaceholder('`restaurant: Restaurant`\n`italian_restaurant: Italian`')
 					.setValue(mappingsText)
 					.onChange(async (value) => {
 						const newMappings: { [key: string]: string } = {};
@@ -251,8 +239,6 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 			.setName('Address field name')
 			.setDesc('Frontmatter field to read address from (default: address)')
 			.addText(text => text
-				// Placeholder mirrors the default field name (DEFAULT_SETTINGS.batchUpdateAddressField).
-				// eslint-disable-next-line obsidianmd/ui/sentence-case
 				.setPlaceholder('address')
 				.setValue(this.plugin.settings.batchUpdateAddressField)
 				.onChange(async (value) => {
@@ -301,15 +287,13 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 		this.warningEl.empty();
 
 		if (!this.plugin.settings.downloadImages) {
-			this.warningEl.createEl('div', {
-				// "Google" is a product name and "URLs" is an acronym — intentional capitalization.
-				// eslint-disable-next-line obsidianmd/ui/sentence-case
+			this.warningEl.createDiv({
 				text: '⚠️ Warning: With image downloads disabled, your Google API key will be included in image URLs within your notes. This could expose your API key if you share these notes.',
 				cls: 'setting-item-description mod-warning'
 			});
-			this.warningEl.setCssProps({ display: 'block' });
+			this.warningEl.removeClass('gp-hidden');
 		} else {
-			this.warningEl.setCssProps({ display: 'none' });
+			this.warningEl.addClass('gp-hidden');
 		}
 	}
 
@@ -348,18 +332,14 @@ export class GooglePlacesSettingTab extends PluginSettingTab {
 					buttonEl.textContent = originalText;
 				}, 3000);
 			} else if (response.status === 403) {
-				// "Google Cloud Console" is a product name — intentional capitalization.
-				// eslint-disable-next-line obsidianmd/ui/sentence-case
-				new Notice('Invalid API key, check your key in Google Cloud Console');
+				new Notice("Invalid API key. Check it in Google's cloud console");
 				buttonEl.textContent = '✗ invalid';
 				window.setTimeout(() => {
 					buttonEl.textContent = originalText;
 				}, 3000);
 			} else if (response.status === 400) {
 				// API key might be valid but missing required APIs.
-				// "Google Places" / "Google Cloud Console" are product names — intentional capitalization.
-				// eslint-disable-next-line obsidianmd/ui/sentence-case
-				new Notice('API key may be valid but Google Places API is not enabled, check your Google Cloud Console');
+				new Notice("Your API key may be valid, but Google's places API is not enabled. Check it in Google's cloud console");
 				buttonEl.textContent = '⚠ Check console';
 				window.setTimeout(() => {
 					buttonEl.textContent = originalText;
@@ -443,10 +423,9 @@ abstract class InputSuggest<T> {
 	private open(): void {
 		if (this.suggestEl) return;
 
-		this.suggestEl = createDiv({ cls: 'suggestion-container' });
+		this.suggestEl = createDiv({ cls: 'suggestion-container gp-suggestion-positioned' });
 		const rect = this.inputEl.getBoundingClientRect();
 		this.suggestEl.setCssProps({
-			position: 'absolute',
 			top: `${rect.bottom}px`,
 			left: `${rect.left}px`,
 			width: `${rect.width}px`

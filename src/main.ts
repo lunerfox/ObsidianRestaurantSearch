@@ -41,9 +41,7 @@ export default class GooglePlacesPlugin extends Plugin {
 		if (!this.registeredCommandIds.has(baseCommandId)) {
 			this.addCommand({
 				id: baseCommandId,
-				// "Google Places" is the product name — intentional capitalization.
-				// eslint-disable-next-line obsidianmd/ui/sentence-case
-				name: 'Search Google Places',
+				name: 'Search for places using Google',
 				callback: () => {
 					this.openSearchModal(false);
 				}

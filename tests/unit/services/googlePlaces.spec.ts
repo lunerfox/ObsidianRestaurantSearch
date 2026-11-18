@@ -106,7 +106,7 @@ describe('GooglePlacesService', () => {
 			const serviceWithoutKey = new GooglePlacesService('');
 
 			await expect(serviceWithoutKey.searchPlaces('Pizza')).rejects.toThrow('API key not configured');
-			expect(mockNotice).toHaveBeenCalledWith('Configure your Google Places API key in plugin settings');
+			expect(mockNotice).toHaveBeenCalledWith("Configure your API key for Google's places service in the plugin settings");
 		});
 
 		it('should properly format API request', async () => {
@@ -248,7 +248,7 @@ describe('GooglePlacesService', () => {
 			const serviceWithoutKey = new GooglePlacesService('');
 
 			await expect(serviceWithoutKey.getPlaceDetails(TEST_PLACE_ID)).rejects.toThrow('API key not configured');
-			expect(mockNotice).toHaveBeenCalledWith('Configure your Google Places API key in plugin settings');
+			expect(mockNotice).toHaveBeenCalledWith("Configure your API key for Google's places service in the plugin settings");
 		});
 
 		it('should handle network errors', async () => {

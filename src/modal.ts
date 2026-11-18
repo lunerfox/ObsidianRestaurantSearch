@@ -53,9 +53,7 @@ export class PlaceSearchModal extends Modal {
 		const { contentEl } = this;
 		contentEl.empty();
 
-		// "Google Places" is the product name — intentional capitalization.
-		// eslint-disable-next-line obsidianmd/ui/sentence-case
-		contentEl.createEl('h2', { text: 'Search Google Places' });
+		contentEl.createEl('h2', { text: 'Search for places using Google' });
 
 		// Template selection dropdown
 		const templateContainer = contentEl.createDiv({ cls: 'template-container gp-section' });
@@ -82,9 +80,7 @@ export class PlaceSearchModal extends Modal {
 
 		new Setting(searchContainer)
 			.setName('Search query')
-			// Example search query showing a real place-name format — not a sentence.
-			// eslint-disable-next-line obsidianmd/ui/sentence-case
-			.setDesc('Enter place name and location (e.g., "Joe\'s Pizza NYC")')
+			.setDesc('Enter a place name and location, for example a restaurant name and city')
 			.addText(text => {
 				text.setPlaceholder('Enter search query...');
 				this.searchInputEl = text.inputEl;
@@ -173,11 +169,11 @@ export class PlaceSearchModal extends Modal {
 				const resultItem = resultsList.createDiv({ cls: 'result-item' });
 
 				const resultContent = resultItem.createDiv({ cls: 'result-content' });
-				resultContent.createEl('div', {
+				resultContent.createDiv({
 					text: result.displayName,
 					cls: 'result-name'
 				});
-				resultContent.createEl('div', {
+				resultContent.createDiv({
 					text: result.formattedAddress,
 					cls: 'result-address'
 				});

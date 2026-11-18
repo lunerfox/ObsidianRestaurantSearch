@@ -843,17 +843,18 @@ name: Restaurant 2
 			mockSearchPlaces = vi.spyOn(mockGooglePlacesService, 'searchPlaces').mockResolvedValue([searchResult]);
 			mockGetPlaceDetails = vi.spyOn(mockGooglePlacesService, 'getPlaceDetails').mockResolvedValue(placeDetails);
 
-			const startTime = Date.now();
+			// Assert on the requested delay, not wall-clock time: timer and clock
+			// granularity on CI runners made a `Date.now()` diff read 49ms for a 50ms sleep.
+			const sleepSpy = vi.spyOn(batchUpdateService as any, 'sleep');
 			await batchUpdateService.processBatch(
 				filesToProcess,
 				files.length,
 				mockOnProgress,
 				mockOnNeedSelection
 			);
-			const duration = Date.now() - startTime;
 
-			// Should have waited at least 50ms between the two files
-			expect(duration).toBeGreaterThanOrEqual(50);
+			// Should have waited 50ms between the two files
+			expect(sleepSpy).toHaveBeenCalledWith(50);
 		});
 
 		it('should count total files including already-skipped files', async () => {

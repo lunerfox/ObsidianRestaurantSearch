@@ -7,6 +7,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.1] - 2026-11-17
+
+### Fixed
+- Bumped `eslint-plugin-obsidianmd` to `^0.6.0` to gate on the community reviewer's
+  current rule set (#932)
+- Removed all `eslint-disable obsidianmd/ui/sentence-case` comments (no longer
+  permitted under the reviewer's default config) and reworded the affected UI
+  strings to pass sentence case without a local rule-option workaround
+- Moved static `setCssProps` style assignments (warning visibility, suggestion
+  popup positioning) to CSS classes in `styles.css`
+- Converted `createEl('div'|'span')` calls to `createDiv`/`createSpan`
+- Dropped the `builtin-modules` dependency; `esbuild.config.mjs` now imports
+  `builtinModules` from `node:module`
+
 ## [1.6.0] - 2026-01-04
 
 ### Fixed

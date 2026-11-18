@@ -114,9 +114,7 @@ export class BatchUpdateModal extends Modal {
 				new Notice('Invalid API key. Please check your settings.');
 				return false;
 			} else if (response.status === 400) {
-				// "Google Places" / "Google Cloud Console" are product names — intentional capitalization.
-				// eslint-disable-next-line obsidianmd/ui/sentence-case
-				new Notice('API key may be valid but Google Places API is not enabled. Check your Google Cloud Console.');
+				new Notice("Your API key may be valid, but Google's places API is not enabled. Check it in Google's cloud console.");
 				return false;
 			} else {
 				new Notice(`API validation failed with status ${response.status}`);
@@ -289,7 +287,7 @@ export class BatchUpdateModal extends Modal {
 			for (const error of result.errorDetails) {
 				const errorItem = errorList.createEl('li');
 				errorItem.createEl('strong', { text: error.file });
-				errorItem.createEl('span', { text: `: ${error.error}` });
+				errorItem.createSpan({ text: `: ${error.error}` });
 			}
 		}
 	}

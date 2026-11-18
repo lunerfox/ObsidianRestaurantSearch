@@ -42,11 +42,11 @@ export class PlaceSelectionModal extends Modal {
 			const resultItem = resultsList.createDiv({ cls: 'place-selection-item' });
 
 			const resultContent = resultItem.createDiv({ cls: 'place-selection-content' });
-			resultContent.createEl('div', {
+			resultContent.createDiv({
 				text: result.displayName,
 				cls: 'place-selection-name'
 			});
-			resultContent.createEl('div', {
+			resultContent.createDiv({
 				text: result.formattedAddress,
 				cls: 'place-selection-address'
 			});
